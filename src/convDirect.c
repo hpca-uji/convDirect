@@ -739,7 +739,8 @@ void convDirect_block_blis( int t,     int Co,   int Ci,
                             DTYPE *Y,  int ldY1,  int ldY2,  int ldY3,
                             DTYPE *Ac,
 		            int tformat, int CIB, int COB, int WOB,
-			    cntx_t * cntx, auxinfo_t * aux, sgemm_ukr_ft gemm_kernel)
+			    cntx_t * cntx, auxinfo_t * aux, sgemm_ukr_ft gemm_kernel,
+			    int b_mr, int b_nr)
 #else
 void convDirect_block_blis( int t,     int Co,   int Ci, 
                             int Ho,    int Wo, 
@@ -756,6 +757,16 @@ void convDirect_block_blis( int t,     int Co,   int Ci,
   // Ensure sufficient independent operations: k around j
   // For compatibility between output layer n and input layer n+1: n->m->i
 
+  int blis_mr, blis_nr;
+  
+  #ifdef MK_BLIS
+    blis_mr = b_mr;
+    blis_nr = b_nr;
+  #else
+    blis_mr = MR;
+    blis_nr = NR;
+  #endif
+  
   int h, i, j, k, l, m, n, i2, j2,
       ho, wo, ii, jj, kk, ib, jb, kb, Cob_Nr = COB/NR;
       //printf("Cob_Nr %d\n", Cob_Nr);
@@ -783,13 +794,13 @@ void convDirect_block_blis( int t,     int Co,   int Ci,
                kb = min(wo-k, WOB); 
                for ( n=0; n<min(Hf,Ho-l); n++ )
                  for ( m=0; m<Wf; m++ ) {
-                   packRB( 'R', 'N', kb, ib, &Drow_NHWC(h, i, l+n, k+m), ldD3, Ac, MR);
+                   packRB( 'R', 'N', kb, ib, &Drow_NHWC(h, i, l+n, k+m), ldD3, Ac, blis_mr);
 		   for ( j=0,j2=0; j<Co; j+=COB,j2++ ) { 
 		     jb = min(Co-j, COB); 
-		     for ( jr=0, jr2=0; jr < jb; jr += NR, jr2++) {
-		       nr = min(jb-jr, NR);
-		       for ( ir=0; ir < min(kb, Wo-k-m+1); ir += MR) {
-			 mr = min(min(kb, Wo-k-m+1)-ir, MR);
+		     for ( jr=0, jr2=0; jr < jb; jr += blis_nr, jr2++) {
+		       nr = min(jb-jr, blis_nr);
+		       for ( ir=0; ir < min(kb, Wo-k-m+1); ir += blis_mr) {
+			 mr = min(min(kb, Wo-k-m+1)-ir, blis_mr);
                         /*
 			gemm_reference( 'C', 'R', 'R', 
                               'N', 'N',

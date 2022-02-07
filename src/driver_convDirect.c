@@ -44,13 +44,13 @@
 #include "inutils.h"
 
 #if defined(IM2COL) || defined(MK_BLIS) || defined(CONVGEMM)
-  #include "blis.h"
+  #include "blis/blis.h"
 #endif
 
 #ifdef CONVGEMM
   #undef min
-  #include "../convGemmNHWC/gemm_blis.h"
-  #include "../convGemmNHWC/im2row_nhwc.h"
+  #include "../convGemmNHWC/src/gemm_blis.h"
+  #include "../convGemmNHWC/src/im2row_nhwc.h"
 #endif
 
 #define dabs(a)      ( (a) > 0.0 ? (a) : -(a) )
@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
     cntx = bli_gks_query_cntx();
     sgemm_ukr_ft gemm_kernel = bli_cntx_get_l3_nat_ukr_dt(BLIS_FLOAT, /*BLIS_GEMM_UKR*/0, cntx);
 
-    int M = bli_cntx_get_blksz_def_dt(BTYPE, BLIS_MR, cntx);
-    int N = bli_cntx_get_blksz_def_dt(BTYPE, BLIS_NR, cntx);
+    int mr = bli_cntx_get_blksz_def_dt(BTYPE, BLIS_MR, cntx);
+    int nr = bli_cntx_get_blksz_def_dt(BTYPE, BLIS_NR, cntx);
     int KC = bli_cntx_get_blksz_max_dt(BTYPE, BLIS_KC, cntx);
     
     if (CIB >= KC) {
@@ -553,11 +553,11 @@ int main(int argc, char *argv[])
 	    int ho = (h + 2 * vpadding - vdilation * (r - 1) - 1) / vstride + 1;
 	    int wo = (w + 2 * hpadding - hdilation * (s - 1) - 1) / hstride + 1;
 
-	    convol_dim dim = { n, h, w, c, k, r, s,
+	    conv_p conv_params = { n, h, w, c, k, r, s,
 	    vstride, hstride, vpadding, hpadding,
 	    vdilation, hdilation, ho, wo,
 	    NULL, NULL, NULL, NULL, NULL, false };
-	    
+
             gemm_blis_B3A2C0_orig('C', 'C', 'C',
 				  'N', 'N',
 				  k, ho * wo * n, r * s * c,
@@ -565,7 +565,7 @@ int main(int argc, char *argv[])
 				  D, r * s * c,
 				  0.0, Y, k,
 				  Ac_pack, pack_RB, 
-				  Bc_pack, pack_CB_nhwc, NULL, cntx, &dim);
+				  Bc_pack, pack_CB_nhwc, NULL, cntx, &conv_params);
 	
          #elif RENAMED
 	    convDirect_renamed(n, k, c,
@@ -601,7 +601,7 @@ int main(int argc, char *argv[])
 			            Y,  ldY1,  ldY2,  ldY3,
                                     Ac, 
 			            tformat, CIB, COB, WOB,
-	                            cntx, &aux, gemm_kernel);
+	                            cntx, &aux, gemm_kernel, mr, nr);
 	    #else
 	      convDirect_block_blis(n, k, c,
 	  		            h, w,

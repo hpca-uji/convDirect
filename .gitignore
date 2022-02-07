@@ -54,6 +54,6 @@ dkms.conf
 *~
 *#
 
-./runs/*
-./build/*
+runs
+build
 ./src/.*

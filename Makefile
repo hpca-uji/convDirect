@@ -9,7 +9,7 @@
 #*      [*] -DBLOCKED_SHALOM
 #*      [*] -DBLOCKED_BLIS
 #*-----------------------------*#
-ALGORITHM = -DCONVGEMM
+ALGORITHM = -DBLOCKED_BLIS
 #------------------------------*#
 
 
@@ -43,7 +43,7 @@ DTYPE     = -DFP32
 #*      MICRO-KERNEL FOR SHALOM
 #*      [*] -DMK_7x12_NPA_U4
 #*-----------------------------*#
-MKERNEL    =
+MKERNEL    = -DMK_8x12
 #------------------------------*#
 
 
@@ -53,12 +53,12 @@ ifeq ($(UNAME_S), Linux)
 # Linux
 	CC       = gcc
 	CLINKER  = gcc
-	OPTFLAGS = -march=armv8-a -fPIC -O3 #-std=c++14 -Wall
+	OPTFLAGS = -march=armv8-a -fPIC -O3
 else
 # MacOs
 	CC       = gcc -arch arm64
 	CLINKER  = gcc -arch arm64
-	OPTFLAGS = # -march=armv8-a -std=c++14 -fPIC -O3 #-Wall
+	OPTFLAGS = 
 endif
 #*-----------------------------*#
 
@@ -84,18 +84,19 @@ TVM_ROOT  = /home/nano/software/apache-tvm-src-v0.8.0.rc0/
 
 ifeq ($(ALGORITHM), -DIM2COL)
 	LIBS_PATH     := $(LIBS_PATH) $(BLIS_ROOT)/lib/libblis.a
-	INCLUDES_PATH := $(INCLUDES_PATH) -I$(BLIS_ROOT)/include/blis/
+	INCLUDES_PATH := $(INCLUDES_PATH) -I$(BLIS_ROOT)/include/
 	MKERNEL        =
 else ifeq ($(ALGORITHM), -DCONVGEMM)
+	OPTFLAGS      := $(OPTFLAGS) -D BLIS_ABI_VERSION=4
 	_OBJ          := $(_OBJ) gemm_blis_B3A2C0_orig.o im2row_nhwc.o gemm_blis.o
 	LIBS_PATH     := $(LIBS_PATH) $(BLIS_ROOT)/lib/libblis.a
-	INCLUDES_PATH := $(INCLUDES_PATH) -I$(BLIS_ROOT)/include/blis/
+	INCLUDES_PATH := $(INCLUDES_PATH) -I$(BLIS_ROOT)/include/
 	MKERNEL        =
 endif
 
 ifeq ($(MKERNEL), -DMK_BLIS)
 	LIBS_PATH     := $(LIBS_PATH) $(BLIS_ROOT)/lib/libblis.a
-	INCLUDES_PATH := $(COMMON_INC_PATH) -I$(BLIS_ROOT)/include/blis/
+	INCLUDES_PATH := $(COMMON_INC_PATH) -I$(BLIS_ROOT)/include/
 else ifeq ($(MKERNEL), -DTVM)
 	#TVM ONLY AVAILABLE WITH DL_BLOCKED IMPLEMENTATION
 	ALGORITHM      = -DBLOCKED_TZEMENG
@@ -130,13 +131,13 @@ $(OBJDIR)/microkernel_gen.o:
 
 #RULES FOR CONGEMM 
 $(OBJDIR)/gemm_blis_B3A2C0_orig.o:
-	$(CLINKER) $(OPTFLAGS) -c -o $@ convGemmNHWC/gemm_blis_B3A2C0_orig.c $(INCLUDES_PATH)
+	$(CLINKER) $(OPTFLAGS) -c -o $@ convGemmNHWC/src/gemm_blis_B3A2C0_orig.c $(INCLUDES_PATH)
 
 $(OBJDIR)/im2row_nhwc.o:
-	$(CLINKER) $(OPTFLAGS) -c -o $@ convGemmNHWC/im2row_nhwc.c $(INCLUDES_PATH)
+	$(CLINKER) $(OPTFLAGS) -c -o $@ convGemmNHWC/src/im2row_nhwc.c $(INCLUDES_PATH)
 
 $(OBJDIR)/gemm_blis.o:
-	$(CLINKER) $(OPTFLAGS) -c -o $@ convGemmNHWC/gemm_blis.c $(INCLUDES_PATH)
+	$(CLINKER) $(OPTFLAGS) -c -o $@ convGemmNHWC/src/gemm_blis.c $(INCLUDES_PATH)
 
 clean:
 	rm $(OBJDIR)/*

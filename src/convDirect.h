@@ -6,7 +6,7 @@
 #endif
 
 #ifdef MK_BLIS
-    #include <blis.h>
+    #include <blis/blis.h>
 #endif
 
 #include <stdio.h>
@@ -149,7 +149,8 @@ void transform_filter_block_blis( int, int,
 			      DTYPE *, int, int, int, 
 			      DTYPE *,
 			      int, int, int, int,
-			      cntx_t *, auxinfo_t *, sgemm_ukr_ft);
+			      cntx_t *, auxinfo_t *, sgemm_ukr_ft,
+			      int, int);
 #else
   void convDirect_block_blis( int, int, int, 
 			      int, int, 
