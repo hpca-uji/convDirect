@@ -2,10 +2,12 @@
 
 #Run:
 
-git clone http://lorca.act.uji.es/gitlab/hekthor.martinez/convdirect.git
+ [*] git clone http://lorca.act.uji.es/gitlab/hekthor.martinez/convdirect.git
 
-git submodule update --init
+ [*] cd convdirect
 
-make
+ [*] git submodule update --init
 
-./directConvolution_Test.sh test/large
+ [*] make
+
+ [*] ./directConvolution_Test.sh test/large
