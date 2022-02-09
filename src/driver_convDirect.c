@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
          visual, nreps, 
     ho, wo, homax, womax;
   
-  int ib, i, i2, ii, Ci_Cib, Co_Cob, Co_Nr;
+  int ib, i, i2, ii, Ci_Cib, Co_Cob, Co_Nr, Co_Mr;
   char *filename;
   FILE *fd;
   int cnn_test_num, cnn_i;
@@ -115,8 +115,15 @@ int main(int argc, char *argv[])
     #ifdef MK_8x12
     // MK_8x12
       WOB = 1792;
-      COB = 1008;
-      CIB = 256;
+      COB = 3072;
+      CIB = 640;
+      // WOB = 896;
+      // COB = 636;
+      // CIB = 512;
+      // BLIS parameters
+      // WOB = 120;  // MC
+      // COB = 3072; // NC
+      // CIB = 640;  // KC
     #elif MK_4x4
     // MK_4x4
       WOB = 896;
@@ -140,13 +147,23 @@ int main(int argc, char *argv[])
     #elif MK_4x20
     // MK_4x20
       WOB = 896;
-      COB = 1020;
-      CIB = 1024;
+      COB = 3060;
+      CIB = 512;
     #elif MK_BLIS
     // MK_BLIS
-      WOB = 1792;
-      COB = 1008;
-      CIB = 256;
+      // WOB = 1792;
+      // COB = 1008;
+      // CIB = 256;
+      // WOB = 120;  // MC
+      // COB = 3072; // NC
+      // CIB = 640;  // KC
+      WOB = 888;
+      COB = 640;
+      CIB = 512;
+      // BLIS parameters
+      // COB = 120;  // MC
+      // WOB = 3072; // NC
+      // CIB = 640;  // KC
     #else
       printf("ERROR: WOB, CIB, COB not defined\n");
       exit(-1);
@@ -158,11 +175,19 @@ int main(int argc, char *argv[])
   #endif
 
   #if defined(BLOCKED_SHALOM) || defined(BLOCKED_TZEMENG) || defined(BLOCKED_BLIS)
+    #if MK_BLIS
+    if (WOB % NR != 0) {
+      printf("ERROR: WOB must be multiple of NR. Now WOB=%d and NR=%d\n", WOB, NR);
+      exit(-1);
+    } else if (COB % MR != 0) {
+      printf("ERROR: COB must be multiple of MR. Now COB=%d and MR=%d\n", COB, MR);
+    #else
     if (WOB % MR != 0) {
       printf("ERROR: WOB must be multiple of MR. Now WOB=%d and MR=%d\n", WOB, MR);
       exit(-1);
     } else if (COB % NR != 0) {
       printf("ERROR: COB must be multiple of NR. Now COB=%d and NR=%d\n", COB, NR);
+    #endif
       exit(-1);
     }
   #endif
@@ -204,14 +229,16 @@ int main(int argc, char *argv[])
 
     int mr = bli_cntx_get_blksz_def_dt(BTYPE, BLIS_MR, cntx);
     int nr = bli_cntx_get_blksz_def_dt(BTYPE, BLIS_NR, cntx);
-    int KC = bli_cntx_get_blksz_max_dt(BTYPE, BLIS_KC, cntx);
-    
-    if (CIB >= KC) {
-      printf("ERROR: CIB=%d must be less than PACKKC=%d", CIB, KC);
-      exit(-1);
-    }
     
     #ifdef CONVGEMM
+      int KC = bli_cntx_get_blksz_max_dt(BTYPE, BLIS_KC, cntx);
+      /*
+      if (CIB >= KC) {
+        printf("ERROR: CIB=%d must be less than PACKKC=%d", CIB, KC);
+        exit(-1);
+      }
+      */
+    
       int MC = bli_cntx_get_blksz_max_dt(BTYPE, BLIS_MC, cntx);
       int NC = bli_cntx_get_blksz_max_dt(BTYPE, BLIS_NC, cntx);
       DTYPE *Ac_pack = aligned_alloc(4096, MC * KC * sizeof(BTYPE));
@@ -338,7 +365,11 @@ int main(int argc, char *argv[])
       YT = (DTYPE *) malloc( nmax*ceil(((float) kmax)/COB)*COB*homax*womax*sizeof(DTYPE));   
       
       //FB = (DTYPE *) malloc( ceil(((float) kmax)/COB)*COB*cmax*rmax*smax*sizeof(DTYPE));
+#ifdef MK_BLIS
+      FB = (DTYPE *) malloc( ceil(((float) kmax)/MR)*MR*cmax*rmax*smax*sizeof(DTYPE));
+#else
       FB = (DTYPE *) malloc( ceil(((float) kmax)/NR)*NR*cmax*rmax*smax*sizeof(DTYPE));
+#endif
       
       if ( testConf->test=='T' )
 	Yg = (DTYPE *) malloc( nmax*kmax*homax*womax*sizeof(DTYPE) );   
@@ -360,7 +391,13 @@ int main(int argc, char *argv[])
 	Ci_Cib = (int)ceil(((float) c)/CIB);
 	Co_Cob = (int)ceil(((float) k)/COB);
 	Co_Nr  = (int)ceil(((float) k)/NR);
-        Ac = (DTYPE *) malloc( ((int) ceil((WOB-1))/MR+1)*MR*CIB*sizeof(DTYPE));
+	Co_Mr  = (int)ceil(((float) k)/MR);
+#ifdef MK_BLIS
+        // Prepare to call micro-kernel with transposed operands
+        Ac = (DTYPE *) aligned_alloc( 4096, ((int) ceil((WOB-1))/NR+1)*NR*CIB*sizeof(DTYPE));
+#else
+        Ac = (DTYPE *) aligned_alloc( 4096, ((int) ceil((WOB-1))/MR+1)*MR*CIB*sizeof(DTYPE));
+#endif
 	// printf("size of Ac %d\n", ((int) ceil((WOB-1))/MR+1)*MR*CIB);
 	// printf("size of Ac %d %d %d\n", WOB, (int) ceil((WOB-1.0)/MR+1.0), ((int) ceil((WOB-1.0)/MR+1.0))*MR*CIB);
 	
@@ -397,10 +434,17 @@ int main(int argc, char *argv[])
 	  //==//===========================//==//
 
 	  //NHWC MACRO FB[] 
-	  ldFB4 = NR;
-	  ldFB3 = c*ldFB4;
-	  ldFB2 = Co_Nr*ldFB3;
-	  ldFB1 = s*ldFB2;
+          #ifdef MK_BLIS
+	    ldFB4 = MR;
+	    ldFB3 = c*ldFB4;
+	    ldFB2 = Co_Mr*ldFB3;
+	    ldFB1 = s*ldFB2;
+          #else
+	    ldFB4 = NR;
+	    ldFB3 = c*ldFB4;
+	    ldFB2 = Co_Nr*ldFB3;
+	    ldFB1 = s*ldFB2;
+          #endif
 
 	  generate_tensor4D( n, c, h, w, D, ldD1, ldD2, ldD3 );
 	  generate_tensor4D( k, c, r, s, F, ldF1, ldF2, ldF3 );
@@ -439,10 +483,17 @@ int main(int argc, char *argv[])
 	  //==//===========================//==//
 	  
 	  //NHWC MACRO FB[] 
+#ifdef MK_BLIS
+	  ldFB4 = MR;
+	  ldFB3 = c*ldFB4;
+	  ldFB2 = Co_Mr*ldFB3;
+	  ldFB1 = s*ldFB2;
+#else
 	  ldFB4 = NR;
 	  ldFB3 = c*ldFB4;
 	  ldFB2 = Co_Nr*ldFB3;
 	  ldFB1 = s*ldFB2;
+#endif
 	  
 	  generate_tensor4D( n, h, w, c, D, ldD1, ldD2, ldD3 );
 	  generate_tensor4D( c, r, s, k, F, ldF1, ldF2, ldF3 );
@@ -733,7 +784,7 @@ int main(int argc, char *argv[])
 	printf("\n");
 
       } } }
-      free(Ac);
+      free(Ac); 
       } } } } //} } // Variation of CIB, WOB, COB
 
       /* Free data */

@@ -13,7 +13,9 @@ void gemm_microkernel_Cresident_neon_4x4_prefetch_fp32( int, int, int, float, fl
 void gemm_microkernel_Cresident_neon_4x12_fp32(int, int, int, float, float *, float *, float, float *, int);
 void gemm_microkernel_Cresident_neon_4x16_fp32(int, int, int, float, float *, float *, float, float *, int);
 void gemm_microkernel_Cresident_neon_4x20_fp32(int, int, int, float, float *, float *, float, float *, int);
+void gemm_microkernel_Cresident_neon_fixed_4x20_fp32(int, int, int, float, float *, float *, float, float *, int);
 void gemm_microkernel_Cresident_neon_8x12_fp32(int, int, int, float, float *, float *, float, float *, int);
+void gemm_microkernel_Cresident_neon_fixed_8x12_fp32(int, int, int, float, float *, float *, float, float *, int);
 
 //Micro-kernels for Tze-Meng
 void gemm_microkernel_Cresident_neon_7x12_fp32( int, int, int, float, float *, float *, float, float *, int );

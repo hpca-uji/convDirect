@@ -9,7 +9,7 @@
 #*      [*] -DBLOCKED_SHALOM
 #*      [*] -DBLOCKED_BLIS
 #*-----------------------------*#
-ALGORITHM = -DBLOCKED_TZEMENG
+ALGORITHM = -DBLOCKED_BLIS
 #------------------------------*#
 
 
@@ -43,7 +43,7 @@ DTYPE     = -DFP32
 #*      MICRO-KERNEL FOR SHALOM
 #*      [*] -DMK_7x12_NPA_U4
 #*-----------------------------*#
-MKERNEL    = -DMK_7x12_U4
+MKERNEL    = -DMK_BLIS
 #------------------------------*#
 
 

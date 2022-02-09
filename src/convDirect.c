@@ -713,8 +713,14 @@ void transform_filter_block_blis( int Ci, int Co,
     return;
 
   if (tformat == NHWC) {
+#ifdef MK_BLIS
+    /* Prepare to call micro-kernel with transposed operands */
+    for ( j=0,j2=0; j<Co; j+=MR,j2++ ) {
+      jb = min(Co-j, MR);
+#else
     for ( j=0,j2=0; j<Co; j+=NR,j2++ ) {
       jb = min(Co-j, NR);
+#endif
       for ( i=0; i<Ci; i++ )
 	for ( n=0; n<Hf; n++ )
 	  for ( m=0; m<Wf; m++ )
@@ -760,16 +766,17 @@ void convDirect_block_blis( int t,     int Co,   int Ci,
   int blis_mr, blis_nr;
   
   #ifdef MK_BLIS
-    blis_mr = b_mr;
-    blis_nr = b_nr;
+    // Prepare to call micro-kernel with transposed operands
+    blis_mr = b_nr;
+    blis_nr = b_mr;
   #else
     blis_mr = MR;
     blis_nr = NR;
   #endif
   
   int h, i, j, k, l, m, n, i2, j2,
-      ho, wo, ii, jj, kk, ib, jb, kb, Cob_Nr = COB/NR;
-      //printf("Cob_Nr %d\n", Cob_Nr);
+      ho, wo, ii, jj, kk, ib, jb, kb, Cob_Nr = COB/NR, Cob_Mr = COB/MR;
+      //DTYPE Cc[MR*NR], blis_beta = 0.0;
 
   int jr, nr, jr2, ir, mr, in = 0;
 
@@ -810,21 +817,49 @@ void convDirect_block_blis( int t,     int Co,   int Ci,
   	  	              1.0, &Yrow_NHWC(h, j+jr, l, k+ir),     ldY3 );
                         */
                        #ifdef MK_BLIS
-			 //gemm_kernel(K, &alpha, A, B, &beta, C, N, 1, aux, cntx);
-			 //printf("Call gemm kernl ib = %d, mr = %d, nr = %d\n", ib, mr, nr); 
-			 //if ((mr == MR) && (nr == NR)) {
-			 //printf("Call gemm kernel %dx%d\n", mr, nr);
+                         /* Call micro-kernel with transposed operands */
+                         //printf("mr %d nr %d blis_mr %d blis_nr %d\n", mr, nr, blis_mr, blis_nr);
+			   gemm_kernel(nr, mr, ib, 
+                                       &alpha, &FBrow_NHWC(j2*Cob_Mr+jr2, i, n, m, 0), 
+                                               &Ac[ir*ib], 
+			 	       &beta,  &Yrow_NHWC(h, j+jr, l, k+ir), 1, ldY3, aux, cntx);
+                         /* THis alternative relies in our micro-kernel, to avoid using the one in BLIS for border cases 
+                         if ((nr==MR)&&(mr==NR))
+			   gemm_kernel(nr, mr, ib, 
+                                       &alpha, &FBrow_NHWC(j2*Cob_Mr+jr2, i, n, m, 0), 
+                                               &Ac[ir*ib], 
+			 	       &beta,  &Yrow_NHWC(h, j+jr, l, k+ir), 1, ldY3, aux, cntx);
+                         else {
+		           gemm_microkernel_Cresident_neon_8x12_fp32( nr, mr, ib, 
+                                                                      1.0, &FBrow_NHWC(j2*Cob_Mr+jr2, i, n, m, 0), 
+                                                                           &Ac[ir*ib], 
+			 	                                      0.0, &Cc, mr);
+                         */
+                         /* This MUST be done for correct solution 
+                            It has a considerable impact on performance 
+                            The overhead could be avoided by transposing the micro-tile of C internally to the routine. 
+                            Howver, even it droping it, the result does not outperform the manual micro-kernel 8x12.*/
+                         /* The alternative is to use the BLIS micro-kernel for all cases, but the performance is even lower */
+                         /*
+                           for (int i1=0; i1<nr; i1++)
+                             for (int j1=0; j1<mr; j1++)
+			 	Yrow_NHWC(h, j+jr+i1, l, k+ir+j1) += Cc[i1*mr+j1];
+                         }
+                         */
+                         /* ORIGINAL
 			 gemm_kernel(mr, nr, ib, &alpha, &Ac[ir*ib], &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
-				     &beta, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3, 1, aux, cntx);
-			   //} else
-			   //gemm_microkernel_Cresident_neon_8x12_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
-			   //                                       &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
-			   //                                       1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );
-
+			 	     &beta, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3, 1, aux, cntx);
+                         */
 		       #elif MK_8x12
-		         gemm_microkernel_Cresident_neon_8x12_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
-                                                                    &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
-                                                                    1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );
+                         //printf("mr %d nr %d blis_mr %d blis_nr %d\n", mr, nr, blis_mr, blis_nr);
+                         if ((mr==MR)&&(nr==NR))
+		             gemm_microkernel_Cresident_neon_fixed_8x12_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
+                                                                        &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
+                                                                        1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );
+                         else
+		             gemm_microkernel_Cresident_neon_8x12_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
+                                                                        &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
+                                                                        1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );
                        #elif MK_4x12
 		         gemm_microkernel_Cresident_neon_4x12_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
                                                                     &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
@@ -834,6 +869,11 @@ void convDirect_block_blis( int t,     int Co,   int Ci,
                                                                     &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
                                                                     1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );
                        #elif MK_4x20
+                         if ((mr==MR)&&(nr==NR))
+		         gemm_microkernel_Cresident_neon_fixed_4x20_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
+                                                                    &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
+                                                                    1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );
+                         else
 		         gemm_microkernel_Cresident_neon_4x20_fp32( mr, nr, ib, 1.0, &Ac[ir*ib], 
                                                                     &FBrow_NHWC(j2*Cob_Nr+jr2, i, n, m, 0),
                                                                     1.0, &Yrow_NHWC(h, j+jr, l, k+ir), ldY3 );

@@ -1,4 +1,7 @@
-#if defined(MK_8x12) || defined(MK_BLIS)
+#if defined(MK_BLIS)
+    #define MR 8
+    #define NR 12
+#elif defined(MK_8x12)
     #define MR 8
     #define NR 12
 #elif defined(MK_4x12)
