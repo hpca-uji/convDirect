@@ -5,11 +5,11 @@
 #********************************************************#
 # [*] TMIN: Minimum Execution Time for each convolution.
 #           If TEST activated, TMIN value must be 0.0
-TMIN=0.0
+TMIN=2.0
 #--------------------------------------------------------#
 # [*] TEST: Activate for convolution results evaluation.
 #           [ T:Enable ], [ F:Disable ]
-TEST=T
+TEST=F
 #--------------------------------------------------------#
 # [*] DEBUG: Activate for debug mode. Prints matrix values.
 #           [ T:Enable ], [ F:Disable ]

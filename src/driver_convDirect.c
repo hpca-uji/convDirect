@@ -302,10 +302,10 @@ int main(int argc, char *argv[])
     printf(" |%s                     D R I V E R    F O R    D I R E C T    C O N V O L U T I O N    E V A L U A T I O N       %s             |\n",
 	   COLOR_BOLDYELLOW, COLOR_RESET);
     printf(" ==============================================================================================================================\n");
-    printf(" |                                          [%s*%s]MR:%2d                  [%s*%s]NR:%2d                                                |\n",
-	   COLOR_BOLDYELLOW, COLOR_RESET, MR,
-	   COLOR_BOLDYELLOW, COLOR_RESET, NR);
-    printf(" ==============================================================================================================================\n");
+    //printf(" |                                          [%s*%s]MR:%2d                  [%s*%s]NR:%2d                                                |\n",
+    //	   COLOR_BOLDYELLOW, COLOR_RESET, MR,
+    //	   COLOR_BOLDYELLOW, COLOR_RESET, NR);
+    //printf(" ==============================================================================================================================\n");
     printf(" |  %s Variant     CIB     COB     WOB     n     k     c    h     w      kh    kw    Time     GFLOPS     Error     Evaluation%s   |\n",
 	   COLOR_RESET, COLOR_RESET);
     printf(" ==============================================================================================================================\n");

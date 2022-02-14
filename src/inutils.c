@@ -135,7 +135,6 @@ testConfig_t* new_CNN_Test_Config(char * argv[]) {
   new_testConfig->debug  = argv[5][0];
   new_testConfig->fd_csv = fopen(argv[6], "w");
 
-  printf("format: %s\n", argv[5]);
   if (strcmp(argv[7], "BOTH") == 0) {
     new_testConfig->format = NHWC + NCHW;
     sprintf(format_str, "%s", "NHWC|NCHW");
@@ -194,18 +193,18 @@ testConfig_t* new_CNN_Test_Config(char * argv[]) {
     sprintf(kernel, "%s", "-");
   #endif
     
-  printf("\n ===========================================================\n");
-  printf(" |%s          T E S T     C O N F I G U R A T I O N          %s|\n", COLOR_BOLDYELLOW, COLOR_RESET);
-  printf(" ===========================================================\n");
-  printf(" |  [%s*%s] Matrix Format Selected |  %-25s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, format_str);
-  printf(" |  [%s*%s] Test Verification      |  %-25s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[4][0] == 'T' ? "ON" : "OFF");
-  printf(" |  [%s*%s] Mode Debug             |  %-25s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[5][0] == 'T' ? "ON" : "OFF");
-  printf(" |  [%s*%s] Configuration Selected |  %-25s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[2]);
-  printf(" |  [%s*%s] File Results Selected  |  %-25s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[6]);
-  printf(" ===========================================================\n");
-  printf(" |  [%s*%s] Algorithm Selected     |  %s%-25s%s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, COLOR_BOLDMAGENTA, algorithm, COLOR_RESET);
-  printf(" |  [%s*%s] Micro-Kernel Selected  |  %s%-25s%s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, COLOR_BOLDMAGENTA, kernel, COLOR_RESET);
-  printf(" ===========================================================\n\n");
+  printf("\n =====================================================================\n");
+  printf(" |%s               T E S T     C O N F I G U R A T I O N               %s|\n", COLOR_BOLDYELLOW, COLOR_RESET);
+  printf(" =====================================================================\n");
+  printf(" |  [%s*%s] Matrix Format Selected |  %-35s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, format_str);
+  printf(" |  [%s*%s] Test Verification      |  %-35s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[4][0] == 'T' ? "ON" : "OFF");
+  printf(" |  [%s*%s] Mode Debug             |  %-35s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[5][0] == 'T' ? "ON" : "OFF");
+  printf(" |  [%s*%s] Configuration Selected |  %-35s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[2]);
+  printf(" |  [%s*%s] File Results Selected  |  %-35s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, argv[6]);
+  printf(" =====================================================================\n");
+  printf(" |  [%s*%s] Algorithm Selected     |  %s%-35s%s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, COLOR_BOLDMAGENTA, algorithm, COLOR_RESET);
+  printf(" |  [%s*%s] Micro-Kernel Selected  |  %s%-35s%s|\n",  COLOR_BOLDYELLOW, COLOR_RESET, COLOR_BOLDMAGENTA, kernel, COLOR_RESET);
+  printf(" =====================================================================\n\n");
 
    
   if ((new_testConfig->debug == 'T') && (new_testConfig->test != 'T')) {

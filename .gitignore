@@ -57,3 +57,5 @@ dkms.conf
 runs
 build
 ./src/.*
+plots
+performance_results
