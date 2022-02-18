@@ -1,0 +1,3 @@
+[submodule "src/convGemmNHWC"]
+	path = src/convGemmNHWC
+	url = http://lorca.act.uji.es/gitlab/antodo/convGemmNHWC.git
