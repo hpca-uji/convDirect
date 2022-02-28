@@ -163,19 +163,23 @@ evalConfig_t *get_evalConfig(char *argv[]) {
     evalConfig_t *ec = (evalConfig_t *) malloc(sizeof(evalConfig_t));
     char format_str[4];
 
-    if( access( ARG_OUTPUT_FILENAME, F_OK ) == 0 ) {
-        printf("Output file '%s' already exits.\n"
-               "Please, delete it if you want to rerun this evaluation.\n",
-               ARG_OUTPUT_FILENAME);
-        exit(EXIT_SUCCESS);
-    }
-
     strncpy(ec->algorithm_name, ARG_ALGORITHM_NAME, 128);
     ec->type = (strncmp(ARG_TYPE_CNN_OR_BATCH, "cnn", 3) == 0) ? CNN_TYPE : BATCH_TYPE;
     ec->tmin = atof(ARG_TMIN);
     ec->test = STR2BOOL(ARG_TEST);
     ec->debug = STR2BOOL(ARG_DEBUG);
-    ec->fd_out = fopen(ARG_OUTPUT_FILENAME, "w");
+
+    if (! ec->test) {
+        if( access( ARG_OUTPUT_FILENAME, F_OK ) == 0 ) {
+            printf("Output file '%s' already exits.\n"
+                   "Please, delete it if you want to rerun this evaluation.\n",
+                   ARG_OUTPUT_FILENAME);
+            exit(EXIT_SUCCESS);
+        }
+        ec->fd_out = fopen(ARG_OUTPUT_FILENAME, "w");
+    } else {
+        ec->fd_out = NULL;
+    }
 
     ec->tensor_format = convdirect_get_tensor_format(ARG_ALGORITHM_NAME);
     if (ec->tensor_format == nchw)

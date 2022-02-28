@@ -16,3 +16,9 @@ add_custom_target(
         COMMAND cd .. && ${PROJECT_SOURCE_DIR}/tests/convDirect_eval_all.sh
         DEPENDS convDirect_eval
 )
+
+add_custom_target(
+        all_close_test
+        COMMAND cd .. && export TMIN=0 && export TEST=T && ${PROJECT_SOURCE_DIR}/tests/convDirect_eval_all.sh
+        DEPENDS convDirect_eval
+)

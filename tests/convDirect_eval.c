@@ -149,9 +149,13 @@ int main(int argc, char *argv[]) {
     convdirect_get_algorithm_parts(ec->algorithm_name, &convdirect_algorithm_parts);
     convdirect_bs_t *convdirect_bs = convdirect_get_block_sizes(ec->algorithm_name);
 
-    if (ec->type == CNN_TYPE)
-        fprintf(ec->fd_out, "l;");
-    fprintf(ec->fd_out, "Variant;CIB;COB;WOB;n;k;c;h;w;kh;kw;Time;GFLOPS;PreTime;PostTime;Error\n");
+    if (!ec->test) {
+        if (ec->type == CNN_TYPE)
+            fprintf(ec->fd_out, "l;");
+        fprintf(ec->fd_out, "Variant;CIB;COB;WOB;n;k;c;h;w;kh;kw;Time;GFLOPS;PreTime;PostTime;Error\n");
+    } else {
+        printf("\n%s In test mode, output files will not be generated!%s\n\n", COLOR_BOLDYELLOW, COLOR_RESET);
+    }
 
     printf(" ==============================================================================================================================\n");
     printf(" |%s                     D R I V E R    F O R    D I R E C T    C O N V O L U T I O N    E V A L U A T I O N       %s             |\n",
@@ -378,14 +382,16 @@ int main(int argc, char *argv[]) {
                                 else
                                     printf("   %sDisabled%s", COLOR_BOLDYELLOW, COLOR_RESET);
 
-                                if (ec->type == CNN_TYPE)
-                                    fprintf(ec->fd_out, "%d;", ec->cnn[cnn_i].layer);
+                                if (!ec->test) {
+                                    if (ec->type == CNN_TYPE)
+                                        fprintf(ec->fd_out, "%d;", ec->cnn[cnn_i].layer);
 
-                                fprintf(ec->fd_out,
-                                        "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%.2e;%.2f;%.2e;%.2e;%.2e\n",
-                                        (tensor_format == nchw) ? "NCHW" : "NHWC", CIB,
-                                        COB, WOB, n, k, c, h, w, r, s,
-                                        time_kernel, GFLOPS, time_pre, time_post, error);
+                                    fprintf(ec->fd_out,
+                                            "%s;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%.2e;%.2f;%.2e;%.2e;%.2e\n",
+                                            (tensor_format == nchw) ? "NCHW" : "NHWC", CIB,
+                                            COB, WOB, n, k, c, h, w, r, s,
+                                            time_kernel, GFLOPS, time_pre, time_post, error);
+                                }
 
                                 printf("\n");
 
@@ -415,7 +421,7 @@ int main(int argc, char *argv[]) {
     TVMArrayFree(C);
 #endif
 
-    fclose(ec->fd_out);
+    if (ec->fd_out != NULL) fclose(ec->fd_out);
     free_evalConfig(ec);
 
     printf(" ==============================================================================================================================\n");

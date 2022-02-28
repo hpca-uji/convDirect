@@ -20,11 +20,11 @@ ALGORITHMS=(
   "convdirect_tzemeng_nhwc_7x12_u4"
 )
 
-for TEST in "${SCRIPT_PATH}"/cnn/*; do
+for NET in "${SCRIPT_PATH}"/cnn/*; do
   for ALGORITHM in "${ALGORITHMS[@]}"; do
       # convdirect_eval.sh writes its outputs to ${RUN_DIR}/runs/CNN_-_algorithm.csv
       # TMIN=0 TEST=T \
-      "${SCRIPT_PATH}"/convDirect_eval.sh "${ALGORITHM}" "${TEST}"
+      "${SCRIPT_PATH}"/convDirect_eval.sh "${ALGORITHM}" "${NET}"
   done
 done
 

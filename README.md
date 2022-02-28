@@ -63,18 +63,33 @@ make                 # Alternatively:  cmake --build . --clean-first
 make install         # Alternatively:  cmake --install . (this does not work with cmake older versions)
 ```
 
-Running the evaluation
-----------------------
+Performance evaluation of the different implementations
+-------------------------------------------------------
 
-To evaluate all the compiled implementations of convDirect, recompile convDirect adding the ``-D COMPILE_TESTS=ON``
+To evaluate all the provided implementations on convDirect, recompile convDirect adding the ``-D COMPILE_TESTS=ON``
 option and execute the ``evaluation`` target. For example as in:
 
 ```shell
 cd build
 cmake -D CMAKE_INSTALL_PREFIX=~/opt/hpca_pydtnn -D COMPILE_TESTS=ON ..
-make evalation       # Alternatively:  cmake --build . --target=evaluation
+make evaluation      # Alternatively:  cmake --build . --target=evaluation
 ```
 
 A Python script is also provided to automatically process the evaluation results and generate the corresponding plots.
 Once the evaluation is completed, the instructions to run it locally or on another machine will be shown on screen. This
 script requires the next Python modules: ``numpy``, ``pandas``, ``tabulate``, ``matplotlib``.
+
+Testing the different implementations
+-------------------------------------
+
+To test the different implementations against a reference convolution, recompile convDirect adding the ``-D COMPILE_TESTS=ON``
+option and execute the ``all_close_test`` target. For example as in:
+
+```shell
+cd build
+cmake -D CMAKE_INSTALL_PREFIX=~/opt/hpca_pydtnn -D COMPILE_TESTS=ON ..
+make all_close_test  # Alternatively:  cmake --build . --all_close_test
+```
+
+Please note that the performance results shown while performing this test can not be accurate as only one iteration of
+each evaluated convolution is performed.

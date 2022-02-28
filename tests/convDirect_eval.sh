@@ -18,12 +18,12 @@ DEBUG=${DEBUG:-F}
 #********************************************************#
 #********************************************************#
 
-RUN_PATH="$(pwd -P)"
+# RUN_PATH="$(pwd -P)"
 
-SCRIPT_PATH="$(
-  cd -- "$(dirname "$0")" >/dev/null 2>&1
-  pwd -P
-)"
+# SCRIPT_PATH="$(
+#   cd -- "$(dirname "$0")" >/dev/null 2>&1
+#   pwd -P
+# )"
 
 my_help() {
   cat <<EOF
@@ -85,9 +85,9 @@ export PATH=${PATH}:./tests:../build/tests
 
 convDirect_eval "${ALGORITHM_NAME}" "${CONFIG_PATH}" \
   "${CNN_OR_BATCH}" \
-  ${TMIN} \
-  ${TEST} \
-  ${DEBUG} \
+  "${TMIN}" \
+  "${TEST}" \
+  "${DEBUG}" \
   "${OUTPUT_FILENAME}"
 
 # Write host information
