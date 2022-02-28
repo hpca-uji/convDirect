@@ -1,0 +1,110 @@
+/**
+ * This file is part of convDirect
+ *
+ * Copyright (C) 2021-22 Universitat Politècnica de València and
+ *                       Universitat Jaume I
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
+#ifndef CONVDIRECT_CONVDIRECT_H
+#define CONVDIRECT_CONVDIRECT_H
+
+typedef enum {nchw, nhwc} tensor_format_t;
+
+typedef struct {
+    int mr;
+    int nr;
+    int wob;
+    int cob;
+    int cib;
+} convdirect_bs_t;
+
+typedef void (convdirect_ft)(int t, int Co, int Ci,
+                             int Ho, int Wo,
+                             int Hf, int Wf,
+                             @DTYPE@ alpha,
+                             const @DTYPE@ *D,
+                             const @DTYPE@ *F,
+                             @DTYPE@ beta,
+                             @DTYPE@ *Y);
+
+typedef void (convdirect_pre_ft)(int t, int Co, int Ci,
+                                 int Ho, int Wo,
+                                 int Hf, int Wf,
+                                 const @DTYPE@ *D,
+                                 const @DTYPE@ *F,
+                                 const @DTYPE@ *Y,
+                                 @DTYPE@ **DT,
+                                 @DTYPE@ **FT,
+                                 @DTYPE@ **YT);
+
+
+typedef void (convdirect_kernel_ft)(int t, int Co, int Ci,
+                                    int Ho, int Wo,
+                                    int Hf, int Wf,
+                                    @DTYPE@ alpha,
+                                    const @DTYPE@ *DT,
+                                    const @DTYPE@ *FT,
+                                    @DTYPE@ beta,
+                                    @DTYPE@ *YT);
+
+typedef void (convdirect_post_ft)(int t, int Co, int Ci,
+                                  int Ho, int Wo,
+                                  int Hf, int Wf,
+                                  @DTYPE@ **DT,
+                                  @DTYPE@ **FT,
+                                  @DTYPE@ **YT,
+                                  @DTYPE@ *Y);
+
+typedef struct {
+    convdirect_pre_ft* pre;
+    convdirect_kernel_ft* kernel;
+    convdirect_post_ft* post;
+} convdirect_algorithm_parts_t;
+
+// Number of algorithms
+extern int convdirect_options;
+
+// Name of each algorithm
+extern char* convdirect_n[];
+
+// Block sizes for each algorithm
+extern convdirect_bs_t* convdirect_bss[];
+
+// Functions to call each one of the algorithms
+extern convdirect_ft* convdirect_f[];
+
+// Parts to call each one of the algorithms
+extern convdirect_algorithm_parts_t convdirect_p[];
+
+// Functions to call the pre part of each one of the algorithms
+extern convdirect_pre_ft* convdirect_pre_f[];
+
+// Functions to call the kernel part of each one of the algorithms
+extern convdirect_kernel_ft* convdirect_kernel_f[];
+
+// Functions to call the post part of each one of the algorithms
+extern convdirect_post_ft* convdirect_post_f[];
+
+// Obtain tensor format, algorithm and block sizes by name
+extern tensor_format_t convdirect_get_tensor_format(char* name);
+extern convdirect_ft* convdirect_get_algorithm(char* name);
+extern convdirect_bs_t* convdirect_get_block_sizes(char* name);
+extern void convdirect_get_algorithm_parts(char* name, convdirect_algorithm_parts_t *convdirect_algorithm_parts);
+
+// Search for algorithm name in convdirect_n[] and return its index
+// Please, consider using the previous functions instead
+int convdirect_get_option(char* name);
+
+#endif

@@ -17,36 +17,20 @@
  * limitations under the License.
 */
 
-#ifdef BLIS_FOUND
+#ifndef CONVDIRECT_GEMM_REFERENCE_H
+#define CONVDIRECT_GEMM_REFERENCE_H
 
-#include <blis/blis.h>
+#include "dtypes.h"
 
-#endif //BLIS_FOUND
+#define min(a, b)     ( (a) > (b) ? (b) : (a) )
 
+void gemm_reference(char orderA, char orderB, char orderC,
+                    char transA, char transB,
+                    int m, int n, int k,
+                    DTYPE alpha,
+                    const DTYPE *A, int ldA,
+                    const DTYPE *B, int ldB,
+                    DTYPE beta,
+                    DTYPE *C, int ldC);
 
-#if defined(INT8)
-#define DTYPE unsigned int
-//-----------------
-#elif defined(FP32)
-#define DTYPE float
-//-----------------
-#elif defined(FP64)
-#define DTYPE double
-#endif
-
-
-#ifdef BLIS_FOUND
-#ifdef FP32
-#define GEMM_KERNEL_TYPE sgemm_ukr_ft
-#define BLIS_DTYPE BLIS_FLOAT
-//------------------------------------
-#elif defined(FP64)
-#define GEMM_KERNEL_TYPE dgemm_ukr_ft
-#define BLIS_DTYPE BLIS_DOUBLE
-//------------------------------------
-#else // FP32 and FP64 not defined
-#pragma GCC error "ERROR: BLIS and INT8 are not yet supported!"
-//------------------------------------
-#endif
-
-#endif // BLIS_FOUND
+#endif // CONVDIRECT_GEMM_REFERENCE_H

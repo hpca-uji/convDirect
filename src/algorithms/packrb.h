@@ -17,36 +17,13 @@
  * limitations under the License.
 */
 
-#ifdef BLIS_FOUND
+#include "../dtypes.h"
+#include "../arrays.h"
+#include "../macros.h"
 
-#include <blis/blis.h>
+#ifndef CONVDIRECT_PACKRB_H
+#define CONVDIRECT_PACKRB_H
 
-#endif //BLIS_FOUND
+void packRB(char orderA, char transA, int mc, int nc, const DTYPE *A, int ldA, DTYPE *Ac, int RR);
 
-
-#if defined(INT8)
-#define DTYPE unsigned int
-//-----------------
-#elif defined(FP32)
-#define DTYPE float
-//-----------------
-#elif defined(FP64)
-#define DTYPE double
-#endif
-
-
-#ifdef BLIS_FOUND
-#ifdef FP32
-#define GEMM_KERNEL_TYPE sgemm_ukr_ft
-#define BLIS_DTYPE BLIS_FLOAT
-//------------------------------------
-#elif defined(FP64)
-#define GEMM_KERNEL_TYPE dgemm_ukr_ft
-#define BLIS_DTYPE BLIS_DOUBLE
-//------------------------------------
-#else // FP32 and FP64 not defined
-#pragma GCC error "ERROR: BLIS and INT8 are not yet supported!"
-//------------------------------------
-#endif
-
-#endif // BLIS_FOUND
+#endif //CONVDIRECT_PACKRB_H

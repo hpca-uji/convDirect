@@ -1,0 +1,56 @@
+/**
+ * This file is part of convDirect
+ *
+ * Copyright (C) 2021-22 Universitat Politècnica de València and
+ *                       Universitat Jaume I
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
+#include "convdirect.h"
+
+// Extern definitions
+@CONVDIRECT_EXTERN@;
+
+// Number of algorithms
+int convdirect_options = @N@;
+
+// Name of each algorithm
+char* convdirect_n[@N@] = {
+@CONVDIRECT_N@
+};
+
+// Block sizes for each algorithm
+convdirect_bs_t* convdirect_bss[@N@] = {
+@CONVDIRECT_BS@
+};
+
+// Functions to call each one of the algorithms
+convdirect_ft* convdirect_f[@N@] = {
+@CONVDIRECT_F@
+};
+
+// Functions to call the pre part of each one of the algorithms
+convdirect_pre_ft* convdirect_pre_f[@N@] = {
+@CONVDIRECT_PRE_F@
+};
+
+// Functions to call the kernel part of each one of the algorithms
+convdirect_kernel_ft* convdirect_kernel_f[@N@] = {
+@CONVDIRECT_KERNEL_F@
+};
+
+// Functions to call the post part of each one of the algorithms
+convdirect_post_ft* convdirect_post_f[@N@] = {
+@CONVDIRECT_POST_F@
+};

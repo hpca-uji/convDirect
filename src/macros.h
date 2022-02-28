@@ -17,36 +17,10 @@
  * limitations under the License.
 */
 
-#ifdef BLIS_FOUND
+#ifndef CONVDIRECT_MACROS_H
+#define CONVDIRECT_MACROS_H
 
-#include <blis/blis.h>
+#define min(a, b) (((a)<(b))?(a):(b))
+#define max(a, b) (((a)>(b))?(a):(b))
 
-#endif //BLIS_FOUND
-
-
-#if defined(INT8)
-#define DTYPE unsigned int
-//-----------------
-#elif defined(FP32)
-#define DTYPE float
-//-----------------
-#elif defined(FP64)
-#define DTYPE double
-#endif
-
-
-#ifdef BLIS_FOUND
-#ifdef FP32
-#define GEMM_KERNEL_TYPE sgemm_ukr_ft
-#define BLIS_DTYPE BLIS_FLOAT
-//------------------------------------
-#elif defined(FP64)
-#define GEMM_KERNEL_TYPE dgemm_ukr_ft
-#define BLIS_DTYPE BLIS_DOUBLE
-//------------------------------------
-#else // FP32 and FP64 not defined
-#pragma GCC error "ERROR: BLIS and INT8 are not yet supported!"
-//------------------------------------
-#endif
-
-#endif // BLIS_FOUND
+#endif //CONVDIRECT_MACROS_H

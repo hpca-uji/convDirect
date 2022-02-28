@@ -17,36 +17,22 @@
  * limitations under the License.
 */
 
-#ifdef BLIS_FOUND
+#ifndef CONVDIRECT_ALGORITHM_BLOCK_SIZES_H
+#define CONVDIRECT_ALGORITHM_BLOCK_SIZES_H
 
-#include <blis/blis.h>
+typedef struct {
+    int mr;
+    int nr;
+    int wob;
+    int cob;
+    int cib;
+} convdirect_bs_t;
 
-#endif //BLIS_FOUND
+#define BS_UPDATE(bs, MR_bs, NR_bs, WOB_bs, COB_bs, CIB_bs) \
+    bs.mr = MR_bs;                                          \
+    bs.nr = NR_bs;                                          \
+    bs.wob = WOB_bs;                                        \
+    bs.cob = COB_bs;                                        \
+    bs.cib = CIB_bs;
 
-
-#if defined(INT8)
-#define DTYPE unsigned int
-//-----------------
-#elif defined(FP32)
-#define DTYPE float
-//-----------------
-#elif defined(FP64)
-#define DTYPE double
-#endif
-
-
-#ifdef BLIS_FOUND
-#ifdef FP32
-#define GEMM_KERNEL_TYPE sgemm_ukr_ft
-#define BLIS_DTYPE BLIS_FLOAT
-//------------------------------------
-#elif defined(FP64)
-#define GEMM_KERNEL_TYPE dgemm_ukr_ft
-#define BLIS_DTYPE BLIS_DOUBLE
-//------------------------------------
-#else // FP32 and FP64 not defined
-#pragma GCC error "ERROR: BLIS and INT8 are not yet supported!"
-//------------------------------------
-#endif
-
-#endif // BLIS_FOUND
+#endif //CONVDIRECT_ALGORITHM_BLOCK_SIZES_H
