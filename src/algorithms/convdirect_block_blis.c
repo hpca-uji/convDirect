@@ -121,17 +121,18 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     int h, i, j, k, l, m, n, i2, j2,
             ho, wo, ii, jj, kk, ib, jb, kb;
 
-/* For testing in the IDE
+// /* For testing in the IDE
 #undef TENSOR_FORMAT_NCHW
 #define MK_BLIS
-#define BLIS_ABI_VERSION 4
-*/
+#define BLIS_ABI_VERSION 3
+// * /
 
 #ifdef MK_BLIS
     auxinfo_t aux;
     MK_BLIS_SET_MR_AND_NR;
 #if BLIS_ABI_VERSION == 3
     DTYPE Cc[NR * MR];
+    DTYPE zero = (DTYPE) 0.0;
 #endif // BLIS_ABI_VERSION == 3
 #endif // MK_BLIS
 
@@ -193,36 +194,41 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                                 (DTYPE *) &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                                 &Ac[ir * ib],
                                                                 &beta,
-                                                                &Yrow_NHWC(h, j + jr, l, k + ir),
-                                                                1, ldY3, &aux, _TFMK(cntx));
+                                                                &Yrow_NHWC(h, j + jr, l, k + ir), 1, ldY3,
+                                                                &aux, _TFMK(cntx));
 #elif BLIS_ABI_VERSION == 3
-                                        if ((nr == MR) && (mr == NR))
-                                            _TFMK(gemm_microkernel)(ib,
-                                                                    &alpha,
-                                                                    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
-                                                                    &Ac[ir * ib],
-                                                                    &beta,
-                                                                    &Yrow_NHWC(h, j + jr, l, k + ir), 1, ldY3, &aux,
-                                                                    _TFMK(cntx));
+                                        if ((nr == NR) && (mr == MR))
+                                            _TFMK(gemm_microkernel)(
+                                                    ib,
+                                                    &alpha,
+                                                    (DTYPE *) &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
+                                                    &Ac[ir * ib],
+                                                    &beta,
+                                                    &Yrow_NHWC(h, j + jr, l, k + ir), 1, ldY3,
+                                                    &aux, _TFMK(cntx));
                                         else {
 #ifndef ARCH__aarch64__
-                                            /* Original alternative */
-                                            _TFMK(gemm_microkernel)(ib,
-                                                                    &alpha,
-                                                                    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
-                                                                    &Ac[ir * ib],
-                                                                    &beta,
-                                                                    Cc, ldY3, 1, &aux, _TFMK(cntx));
+                                            /* BLIS alternative */
+                                            _TFMK(gemm_microkernel)(
+                                                    ib,
+                                                    &alpha,
+                                                    (DTYPE *) &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
+                                                    &Ac[ir * ib],
+                                                    &zero,
+                                                    Cc, 1, NR,
+                                                    &aux, _TFMK(cntx));
 #else
                                             /* THis alternative relies on our micro-kernel, to avoid using the one in
                                              * BLIS for the border cases */
+                                            /* WARNING: NR must be used as leading dimension because he next to this
+                                             * operation is shared with the no ARCH__arrch64__ gemm version */
                                             gemm_microkernel_Cresident_neon_8x12_fp32(
                                                     nr, mr, ib,
                                                     alpha,
                                                     &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     &Ac[ir * ib],
-                                                    beta,
-                                                    Cc, mr);
+                                                    zero,
+                                                    Cc, NR); // NR is ok. See above.
 #endif
                                             /* The next operations MUST be done to achieve the correct solution.
                                              * It has a considerable impact on performance.
@@ -231,11 +237,22 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                              * not outperform the manual micro-kernel 8x12.
                                              * The alternative is to use the BLIS micro-kernel for all cases, but the
                                              * performance is even lower */
-                                            for (int i1 = 0; i1 < nr; i1++)
+                                            if (beta == (DTYPE) 0.0) {
                                                 for (int j1 = 0; j1 < mr; j1++)
-                                                    Yrow_NHWC(h, j + jr + i1, l, k + ir + j1) += Cc[i1 * mr + j1];
+                                                    for (int i1 = 0; i1 < nr; i1++)
+                                                        Yrow_NHWC(h, j + jr + i1, l, k + ir + j1) = Cc[j1 * NR + i1];
+                                            } else if (beta == (DTYPE) 1.0) {
+                                                for (int j1 = 0; j1 < mr; j1++)
+                                                    for (int i1 = 0; i1 < nr; i1++)
+                                                        Yrow_NHWC(h, j + jr + i1, l, k + ir + j1) += Cc[j1 * NR + i1];
+                                            } else {
+                                                for (int j1 = 0; j1 < mr; j1++)
+                                                    for (int i1 = 0; i1 < nr; i1++)
+                                                        Yrow_NHWC(h, j + jr + i1, l, k + ir + j1) =
+                                                                beta * Yrow_NHWC(h, j + jr + i1, l, k + ir + j1) +
+                                                                Cc[j1 * NR + i1];
+                                            }
                                         }
-
 #else
 #pragma GCC error "Error: current BLIS ABI version not yet supported!"
 #endif
