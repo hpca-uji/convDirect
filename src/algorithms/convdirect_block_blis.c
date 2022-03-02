@@ -207,7 +207,7 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                     &Yrow_NHWC(h, j + jr, l, k + ir), 1, ldY3,
                                                     &aux, _TFMK(cntx));
                                         else {
-#ifndef ARCH__aarch64__
+// #ifndef ARCH__aarch64__
                                             /* BLIS alternative */
                                             _TFMK(gemm_microkernel)(
                                                     ib,
@@ -217,11 +217,14 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                     &zero,
                                                     Cc, 1, NR,
                                                     &aux, _TFMK(cntx));
-#else
+// #else
                                             /* THis alternative relies on our micro-kernel, to avoid using the one in
                                              * BLIS for the border cases */
                                             /* WARNING: NR must be used as leading dimension because he next to this
                                              * operation is shared with the no ARCH__arrch64__ gemm version */
+                                            /* Our microkernel alternative should be tested again before using
+                                             * it, something does not work (are always nr < 8 and mr < 12?) */
+                                            /*
                                             gemm_microkernel_Cresident_neon_8x12_fp32(
                                                     nr, mr, ib,
                                                     alpha,
@@ -229,7 +232,8 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                     &Ac[ir * ib],
                                                     zero,
                                                     Cc, NR); // NR is ok. See above.
-#endif
+                                            */
+// #endif
                                             /* The next operations MUST be done to achieve the correct solution.
                                              * It has a considerable impact on performance.
                                              * The overhead could be avoided by transposing the micro-tile of C
