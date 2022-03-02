@@ -121,13 +121,13 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     int h, i, j, k, l, m, n, i2, j2,
             ho, wo, ii, jj, kk, ib, jb, kb;
 
-// /* For testing in the IDE
+/* For testing in the IDE
 #undef TENSOR_FORMAT_NCHW
 #define MK_BLIS
 #define BLIS_ABI_VERSION 3
-// * /
+*/
 
-#ifdef MK_BLIS
+ #ifdef MK_BLIS
     auxinfo_t aux;
     MK_BLIS_SET_MR_AND_NR;
 #if BLIS_ABI_VERSION == 3
