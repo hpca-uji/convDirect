@@ -56,17 +56,17 @@
 #define TRANSFORM_FILTER _JOIN2_INNER(CONVDIRECT, _transform_filter)
 #define TRANSFORM_OUTPUT _JOIN2_INNER(CONVDIRECT, _transform_output)
 // ---------------------------------------------------------
-#define CONVDIRECT_PARAMS  \
-    int t, int Co, int Ci, \
-    int Ho, int Wo,        \
-    int Hf, int Wf,        \
-    int vpadding, int hpadding, \
-    int vstride, int hstride, \
+#define CONVDIRECT_PARAMS         \
+    int t, int Co, int Ci,        \
+    int Ho, int Wo,               \
+    int Hf, int Wf,               \
+    int vpadding, int hpadding,   \
+    int vstride, int hstride,     \
     int vdilation, int hdilation, \
-    DTYPE alpha,           \
-    const DTYPE *D,        \
-    const DTYPE *F,        \
-    DTYPE beta,            \
+    DTYPE alpha,                  \
+    const DTYPE *D,               \
+    const DTYPE *F,               \
+    DTYPE beta,                   \
     DTYPE *Y
 
 #define CONVDIRECT_PRE_PARAMS \
@@ -90,17 +90,17 @@
         *YT = (DTYPE *) Y;       \
     }
 
-#define CONVDIRECT_KERNEL_PARAMS \
-    int t, int Co, int Ci,       \
-    int Ho, int Wo,              \
-    int Hf, int Wf,              \
-    int vpadding, int hpadding,  \
-    int vstride, int hstride,    \
+#define CONVDIRECT_KERNEL_PARAMS  \
+    int t, int Co, int Ci,        \
+    int Ho, int Wo,               \
+    int Hf, int Wf,               \
+    int vpadding, int hpadding,   \
+    int vstride, int hstride,     \
     int vdilation, int hdilation, \
-    DTYPE alpha,                 \
-    const DTYPE *DT,             \
-    const DTYPE *FT,             \
-    DTYPE beta,                  \
+    DTYPE alpha,                  \
+    const DTYPE *DT,              \
+    const DTYPE *FT,              \
+    DTYPE beta,                   \
     DTYPE *YT
 
 #define CONVDIRECT_KERNEL_WITH_PARAMS \
@@ -121,30 +121,30 @@
 #define CONVDIRECT_POST_NOP \
     CONVDIRECT_POST_WITH_PARAMS {}
 
-#define CONVDIRECT_PRE_KERNEL_POST        \
-    CONVDIRECT(CONVDIRECT_PARAMS) {       \
-        DTYPE *DT, *FT, *YT;              \
-                                          \
-        CONVDIRECT_PRE(t, Co, Ci,         \
-                       Ho, Wo, Hf, Wf,    \
-                       D, F, Y,           \
-                       &DT, &FT, &YT);    \
-                                          \
-        CONVDIRECT_KERNEL(t, Co, Ci,      \
-                          Ho, Wo, Hf, Wf, \
-                          vpadding, hpadding, \
-                          vstride, hstride, \
+#define CONVDIRECT_PRE_KERNEL_POST              \
+    CONVDIRECT(CONVDIRECT_PARAMS) {             \
+        DTYPE *DT, *FT, *YT;                    \
+                                                \
+        CONVDIRECT_PRE(t, Co, Ci,               \
+                       Ho, Wo, Hf, Wf,          \
+                       D, F, Y,                 \
+                       &DT, &FT, &YT);          \
+                                                \
+        CONVDIRECT_KERNEL(t, Co, Ci,            \
+                          Ho, Wo, Hf, Wf,       \
+                          vpadding, hpadding,   \
+                          vstride, hstride,     \
                           vdilation, hdilation, \
-                          alpha,          \
-                          DT,             \
-                          FT,             \
-                          beta,           \
-                          YT);            \
-                                          \
-        CONVDIRECT_POST(t, Co, Ci,        \
-                        Ho, Wo, Hf, Wf,   \
-                        &DT, &FT, &YT,    \
-                        Y);               \
+                          alpha,                \
+                          DT,                   \
+                          FT,                   \
+                          beta,                 \
+                          YT);                  \
+                                                \
+        CONVDIRECT_POST(t, Co, Ci,              \
+                        Ho, Wo, Hf, Wf,         \
+                        &DT, &FT, &YT,          \
+                        Y);                     \
     };
 
 #endif // defined(TF) && defined(MK)
