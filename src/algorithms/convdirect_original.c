@@ -30,6 +30,9 @@ void CONVDIRECT_POST_NOP;
 void CONVDIRECT_KERNEL(int n, int k, int c,
                        int h, int w,
                        int r, int s,
+                       int vpadding, int hpadding,
+                       int vstride, int hstride,
+                       int vdilation, int hdilation,
                        DTYPE alpha,
                        const DTYPE *D,
                        const DTYPE *F,
@@ -44,8 +47,8 @@ void CONVDIRECT_KERNEL(int n, int k, int c,
 
     int in, ik, ic, ih, iw, ir, is, x_x, x_y, ho, wo;
 
-    ho = ((h - r) / 1) + 1;
-    wo = ((w - s) / 1) + 1;
+    ho = (h + 2 * vpadding - vdilation * (r - 1) - 1) / vstride + 1;
+    wo = (w + 2 * hpadding - hdilation * (s - 1) - 1) / hstride + 1;
 
     SET_LEADING_DIMENSIONS;
 
@@ -56,10 +59,10 @@ void CONVDIRECT_KERNEL(int n, int k, int c,
                 for (ih = 0; ih < ho; ih++)
                     for (iw = 0; iw < wo; iw++)
                         for (ir = 0; ir < r; ir++) {
-                            x_x = ih + ir;
+                            x_x = vstride * ih + vdilation * ir - vpadding;
                             if (0 <= x_x && x_x < h)
                                 for (is = 0; is < s; is++) {
-                                    x_y = iw + is;
+                                    x_y = hstride * iw + hdilation * is - hpadding;
                                     if (0 <= x_y && x_y < w)
                                         Ygrow_NCHW(in, ik, ih, iw) +=
                                                 Drow_NCHW(in, ic, x_x, x_y) * Frow_NCHW(ik, ic, ir, is);
@@ -72,10 +75,10 @@ void CONVDIRECT_KERNEL(int n, int k, int c,
                 for (ih = 0; ih < ho; ih++)
                     for (iw = 0; iw < wo; iw++)
                         for (ir = 0; ir < r; ir++) {
-                            x_x = ih + ir;
+                            x_x = vstride * ih + vdilation * ir - vpadding;
                             if (0 <= x_x && x_x < h)
                                 for (is = 0; is < s; is++) {
-                                    x_y = iw + is;
+                                    x_y = hstride * iw + hdilation * is - hpadding;
                                     if (0 <= x_y && x_y < w) {
                                         // printf("FB %d %d %d %d %16.10e\n", ik, ic, ir, is, Frow_NHWC(ik,ic,ir,is));
                                         Ygrow_NHWC(in, ik, ih, iw) +=

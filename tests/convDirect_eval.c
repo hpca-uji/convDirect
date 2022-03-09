@@ -90,6 +90,13 @@ int main(int argc, char *argv[]) {
      */
 
     evalConfig_t *ec = get_evalConfig(argv);
+    /* TODO this should in the configuration function */
+    const int vpadding  = 0;
+    const int hpadding  = 0;
+    const int vstride   = 1;
+    const int hstride   = 1;
+    const int vdilation = 1;
+    const int hdilation = 1;
 
     m = 2;
     t = 6;
@@ -199,16 +206,8 @@ int main(int argc, char *argv[]) {
         smax = ec->cnn[cnn_i].smax;
         sstep = ec->cnn[cnn_i].sstep;
 
-        //WARNING: ONLY FOR GEMM TEST; TODO: FIX THIS WITH PADDING!!
-        if ((rmax == 3) && (smax == 3)) {
-            hmin += 2;
-            hmax += 2;
-            wmin += 2;
-            wmax += 2;
-        }
-
-        homax = ((hmax - rmin) / 1) + 1;
-        womax = ((wmax - smin) / 1) + 1;
+        homax = (hmax + 2 * vpadding - vdilation * (rmin - 1) - 1) / vstride + 1;
+        womax = (wmax + 2 * hpadding - hdilation * (smin - 1) - 1) / hstride + 1;
 
         D = (DTYPE *) malloc(nmax * cmax * hmax * wmax * sizeof(DTYPE));
         F = (DTYPE *) malloc(kmax * cmax * rmax * smax * sizeof(DTYPE));
@@ -227,8 +226,9 @@ int main(int argc, char *argv[]) {
                             for (r = rmin; r <= rmax; r += rstep) {
 
                                 s = r;
-                                ho = ((h - r) / 1) + 1;
-                                wo = ((w - s) / 1) + 1;
+                                ho = (h + 2 * vpadding - vdilation * (r - 1) - 1) / vstride + 1;
+                                wo = (w + 2 * hpadding - hdilation * (s - 1) - 1) / hstride + 1;
+
                                 if (tensor_format == nchw) { // nchw
                                     fill_tensor4D_rand(n, c, h, w, D, 0, 0, 0);
                                     fill_tensor4D_rand(k, c, r, s, F, 0, 0, 0);
@@ -285,6 +285,9 @@ int main(int argc, char *argv[]) {
                                             n, k, c,
                                             h, w,
                                             r, s,
+                                            vpadding, hpadding,
+                                            vstride, hstride,
+                                            vdilation, hdilation,
                                             (DTYPE) 1.0,
                                             DT,
                                             FT,
@@ -323,15 +326,14 @@ int main(int argc, char *argv[]) {
                                             n, k, c,
                                             h, w,
                                             r, s,
+                                            vpadding, hpadding,
+                                            vstride, hstride,
+                                            vdilation, hdilation,
                                             (DTYPE) 1.0,
                                             D,
                                             F,
                                             (DTYPE) 1.0,
                                             Yg);
-
-
-                                    ho = ((h - r) / 1) + 1;
-                                    wo = ((w - s) / 1) + 1;
 
                                     // print_tensor4D( "Yg", n, ho, wo, k, Yg, ldY1, ldY2, ldY3 );
 

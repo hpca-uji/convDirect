@@ -58,10 +58,10 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     DTYPE *Y = YT;
 
 #if TENSOR_FORMAT_NCHW
-    printf("Error: convdirect_im2row does not yet support the NHWC tensor format!\n");
+    printf("Error: convdirect_im2row does not yet support the NCHW tensor format!\n");
     exit(1);
 #else
-    im2row(DEXT, c * r * s, D, n, h, w, c, ho, wo, r, s, 0, 0, 1, 1, 1, 1);
+    im2row(DEXT, c * r * s, D, n, h, w, c, ho, wo, r, s, vpadding, hpadding, vstride, hstride, vdilation, hdilation);
 
     bli_sgemm(transa == 'T' ? BLIS_TRANSPOSE : BLIS_NO_TRANSPOSE,
               transb == 'T' ? BLIS_TRANSPOSE : BLIS_NO_TRANSPOSE,

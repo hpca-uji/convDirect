@@ -36,6 +36,8 @@ if (BLIS_FOUND)
     # Sources that are not under 'algorithms/' must be added here
     list(APPEND CD_SOURCES
             convGemmNHWC/src/gemm_blis.c;
+            convGemmNHWC/src/im2col_nchw.c;
+            convGemmNHWC/src/gemm_blis_B3A2C0.c;
             convGemmNHWC/src/im2row_nhwc.c;
             convGemmNHWC/src/gemm_blis_B3A2C0_orig.c)
 endif ()

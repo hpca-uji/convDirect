@@ -45,8 +45,8 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 
     int h, i, j, k, l, m, n, x_x, x_y, ho, wo, ii, jj, kk, ib, jb, kb;
 
-    ho = ((Ho - Hf) / 1) + 1;
-    wo = ((Wo - Wf) / 1) + 1;
+    ho = (Ho + 2 * vpadding - vdilation * (Hf - 1) - 1) / vstride + 1;
+    wo = (Wo + 2 * hpadding - hdilation * (Wf - 1) - 1) / hstride + 1;
 
     SET_LEADING_DIMENSIONS;
 
@@ -64,12 +64,12 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                     for (k = 0; k < wo; k += WOB) {
                         kb = min(wo - k, WOB);
                         for (n = 0; n < Hf; n++) {
-                            x_x = l + n;
+                            x_x = vstride * l + vdilation * n - vpadding;
                             if (0 <= x_x && x_x < Ho)
                                 for (m = 0; m < Wf; m++)
                                     for (ii = 0; ii < ib; ii++)
                                         for (kk = 0; kk < kb; kk++) {
-                                            x_y = k + kk + m;
+                                            x_y = hstride * (k + kk) + hdilation * m - hpadding;
                                             if (0 <= x_y && x_y < Wo)
                                                 for (jj = 0; jj < jb; jj++)
                                                     Yrow_NCHW(h, j + jj, l, k + kk) +=
@@ -90,12 +90,12 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                     for (k = 0; k < wo; k += WOB) {
                         kb = min(wo - k, WOB);
                         for (n = 0; n < Hf; n++) {
-                            x_x = l + n;
+                            x_x = vstride * l + vdilation * n - vpadding;
                             if (0 <= x_x && x_x < Ho)
                                 for (m = 0; m < Wf; m++)
                                     for (ii = 0; ii < ib; ii++)
                                         for (kk = 0; kk < kb; kk++) {
-                                            x_y = k + kk + m;
+                                            x_y = hstride * (k + kk) + hdilation * m - hpadding;
                                             if (0 <= x_y && x_y < Wo)
                                                 for (jj = 0; jj < jb; jj++)
                                                     Yrow_NHWC(h, j + jj, l, k + kk) +=

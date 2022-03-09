@@ -29,6 +29,7 @@
 #undef min
 
 #include "../convGemmNHWC/src/gemm_blis.h"
+#include "../convGemmNHWC/src/im2col_nchw.h"
 #include "../convGemmNHWC/src/im2row_nhwc.h"
 
 convdirect_bs_t BLOCK_SIZES = {0, 0, 0, 0, 0};
@@ -47,13 +48,6 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     cntx_t *cntx;
     bli_init();
     cntx = bli_gks_query_cntx();
-
-    int vpadding = 0;
-    int hpadding = 0;
-    int vdilation = 1;
-    int hdilation = 1;
-    int vstride = 1;
-    int hstride = 1;
 
     int ho = (h + 2 * vpadding - vdilation * (r - 1) - 1) / vstride + 1;
     int wo = (w + 2 * hpadding - hdilation * (s - 1) - 1) / hstride + 1;
@@ -79,15 +73,21 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     DTYPE *Y = YT;
 
 #ifdef TENSOR_FORMAT_NCHW
-    printf("Tensor format NCHW not yet implemented in convDirect_block_blis!\n");
-    exit(EXIT_FAILURE);
+    gemm_blis_B3A2C0('C', 'C', 'C',
+                     'N', 'N',
+                     _n, _m, _k,
+                     alpha, F, _n,
+                     D, _k,
+                     beta, Y, _n,
+                     Ac_pack, pack_RB_nchw,
+                     Bc_pack, pack_CB, add_bias_transpose_nchw, cntx, &conv_params);
 #else
     gemm_blis_B3A2C0_orig('C', 'C', 'C',
                           'N', 'N',
                           _m, _n, _k,
-                          alpha, F, k,
-                          D, r * s * c,
-                          beta, Y, k,
+                          alpha, F, _m,
+                          D, _k,
+                          beta, Y, _m,
                           Ac_pack, pack_RB,
                           Bc_pack, pack_CB_nhwc, NULL, cntx, &conv_params);
 #endif

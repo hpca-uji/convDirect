@@ -38,6 +38,7 @@
 int main(int argc, char *argv[]) {
 
     int n = 1, c = 1, h = 4, w = 2, k = 1, r = 2, s = 2;
+    int vpadding = 0, hpadding = 0, vstride = 1, hstride = 1, vdilation = 1, hdilation = 1;
 
     DTYPE D[] = {1, 2,
                  4, 8,
@@ -62,6 +63,9 @@ int main(int argc, char *argv[]) {
             n, k, c,
             h, w,
             r, s,
+            vpadding, hpadding,
+            vstride, hstride,
+            vdilation, hdilation,
             (DTYPE) 1.0,
             D,
             F,
@@ -78,6 +82,9 @@ int main(int argc, char *argv[]) {
             n, k, c,
             h, w,
             r, s,
+            vpadding, hpadding,
+            vstride, hstride,
+            vdilation, hdilation,
             (DTYPE) 1.0,
             D,
             F,

@@ -60,6 +60,9 @@
     int t, int Co, int Ci, \
     int Ho, int Wo,        \
     int Hf, int Wf,        \
+    int vpadding, int hpadding, \
+    int vstride, int hstride, \
+    int vdilation, int hdilation, \
     DTYPE alpha,           \
     const DTYPE *D,        \
     const DTYPE *F,        \
@@ -91,6 +94,9 @@
     int t, int Co, int Ci,       \
     int Ho, int Wo,              \
     int Hf, int Wf,              \
+    int vpadding, int hpadding,  \
+    int vstride, int hstride,    \
+    int vdilation, int hdilation, \
     DTYPE alpha,                 \
     const DTYPE *DT,             \
     const DTYPE *FT,             \
@@ -126,6 +132,9 @@
                                           \
         CONVDIRECT_KERNEL(t, Co, Ci,      \
                           Ho, Wo, Hf, Wf, \
+                          vpadding, hpadding, \
+                          vstride, hstride, \
+                          vdilation, hdilation, \
                           alpha,          \
                           DT,             \
                           FT,             \

@@ -38,8 +38,8 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 
     int h, i, j, k, l, m, n, x_x, x_y, ho, wo;
 
-    ho = ((Ho - Hf) / 1) + 1;
-    wo = ((Wo - Wf) / 1) + 1;
+    ho = (Ho + 2 * vpadding - vdilation * (Hf - 1) - 1) / vstride + 1;
+    wo = (Wo + 2 * hpadding - hdilation * (Wf - 1) - 1) / hstride + 1;
 
     SET_LEADING_DIMENSIONS;
 
@@ -51,12 +51,12 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     for (h = 0; h < t; h++)
         for (l = 0; l < ho; l++)
             for (n = 0; n < Hf; n++) {
-                x_x = l + n;
+                x_x = vstride * l + vdilation * n - vpadding;
                 if (0 <= x_x && x_x < Ho)
                     for (m = 0; m < Wf; m++)
                         for (i = 0; i < Ci; i++)
                             for (k = 0; k < wo; k++) {
-                                x_y = k + m;
+                                x_y = hstride * k + hdilation * m - hpadding;
                                 if (0 <= x_y && x_y < Wo)
                                     for (j = 0; j < Co; j++)
                                         Yrow_NCHW(h, j, l, k) += Drow_NCHW(h, i, x_x, x_y) * Frow_NCHW(j, i, n, m);
@@ -66,12 +66,12 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     for (h = 0; h < t; h++)
         for (l = 0; l < ho; l++)
             for (n = 0; n < Hf; n++) {
-                x_x = l + n;
+                x_x = vstride * l + vdilation * n - vpadding;
                 if (0 <= x_x && x_x < Ho)
                     for (m = 0; m < Wf; m++)
                         for (i = 0; i < Ci; i++)
                             for (k = 0; k < wo; k++) {
-                                x_y = k + m;
+                                x_y = hstride * k + hdilation * m - hpadding;
                                 if (0 <= x_y && x_y < Wo)
                                     for (j = 0; j < Co; j++)
                                         Yrow_NHWC(h, j, l, k) += Drow_NHWC(h, i, x_x, x_y) * Frow_NHWC(j, i, n, m);

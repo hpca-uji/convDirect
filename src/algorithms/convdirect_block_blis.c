@@ -142,8 +142,8 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 
     int jr, nr, jr2, ir, mr, in = 0;
 
-    ho = ((Ho - Hf) / 1) + 1;
-    wo = ((Wo - Wf) / 1) + 1;
+    ho = (Ho + 2 * vpadding - vdilation * (Hf - 1) - 1) / vstride + 1;
+    wo = (Wo + 2 * hpadding - hdilation * (Wf - 1) - 1) / hstride + 1;
 
     SET_LEADING_DIMENSIONS;
     SET_Co_NR;
@@ -167,9 +167,13 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
             for (l = 0; l < ho; l++) {
                 for (k = 0; k < wo; k += WOB) {
                     kb = min(wo - k, WOB);
-                    for (n = 0; n < min(Hf, Ho - l); n++) {
+                    for (n = 0; n < Hf; n++) {
                         for (m = 0; m < Wf; m++) {
-                            packRB('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
+                            // packRB('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
+                            // assert(i + ib <= Ci); assert(k + kb <= wo); // assert(k + kb + m <= Wo);
+                            packRB( 'R', 'N', kb, ib, D + h * ldD1, l, n, k, m, i, Ho, Wo,
+                                vpadding, hpadding, vstride, hstride, vdilation, hdilation,
+                                ldD2, ldD3, Ac, MR);
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {
                                 jb = min(Co - j, COB);
                                 for (jr = 0, jr2 = 0; jr < jb; jr += NR, jr2++) {
