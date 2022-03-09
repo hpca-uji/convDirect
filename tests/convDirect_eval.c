@@ -343,7 +343,7 @@ int main(int argc, char *argv[]) {
                                     error = 0.0;
                                 }
 
-                                flops = 2.0 * n * k * c * h * w * r * s;
+                                flops = 2.0 * n * k * c * ho * wo * r * s;
                                 GFLOPS = flops / (1.0e+9 * time_kernel);
 
                                 if (ec->debug) {
