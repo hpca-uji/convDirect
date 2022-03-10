@@ -33,7 +33,7 @@ To compile and install the convDirect library, please execute the next commands:
 
 ```shell
 cd build
-cmake [-D CMAKE_PREFIX_PATH=BLIS_INSTALL_PREFIX;TVM_INSTALL_PREFIX] [-D CMAKE_INSTALL_PREFIX=INSTALL_PREFIX] ..
+cmake -D CMAKE_PREFIX_PATH="BLIS_INSTALL_PREFIX;TVM_INSTALL_PREFIX" -D CMAKE_INSTALL_PREFIX=INSTALL_PREFIX ..
 make                 # Alternatively:  cmake --build . --clean-first
 make install         # Alternatively:  cmake --install .
 ```
