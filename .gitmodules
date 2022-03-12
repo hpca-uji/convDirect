@@ -1,3 +1,3 @@
 [submodule "src/convGemmNHWC"]
 	path = src/convGemmNHWC
-	url = http://lorca.act.uji.es/gitlab/antodo/convGemmNHWC.git
+	url = ssh://git@lorca.act.uji.es:2222/antodo/convGemmNHWC.git
