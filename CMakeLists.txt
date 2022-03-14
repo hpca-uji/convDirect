@@ -1,4 +1,4 @@
-# convGemmNHWC CMakeLists.txt
+# convDirect CMakeLists.txt
 
 cmake_minimum_required(VERSION 3.13)
 
@@ -96,12 +96,6 @@ else ()
 endif ()
 # ========================================================================
 
-# ========================================================================
-# common sources to the convGemm library and the test executables
-# ------------------------------------------------------------------------
-#set(COMMON_SOURCES gemm_blis.c;gemm_blis_B3A2C0.c;gemm_blis_A3B2C0.c;gemm_blis_B3A2C0_orig.c;im2row_nhwc.c;im2col_nchw.c)
-#string(REGEX REPLACE "([^;]+)" "${PROJECT_SOURCE_DIR}/src/\\1" COMMON_SOURCES "${COMMON_SOURCES}")
-# ========================================================================
 
 set(N 0)
 

@@ -28,9 +28,9 @@
 
 #undef min
 
-#include "../convGemmNHWC/src/gemm_blis.h"
-#include "../convGemmNHWC/src/im2col_nchw.h"
-#include "../convGemmNHWC/src/im2row_nhwc.h"
+#include "../convGemm/src/gemm_blis.h"
+#include "../convGemm/src/im2col_nchw.h"
+#include "../convGemm/src/im2row_nhwc.h"
 
 convdirect_bs_t BLOCK_SIZES = {0, 0, 0, 0, 0};
 
