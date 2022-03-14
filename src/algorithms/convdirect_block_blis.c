@@ -267,7 +267,7 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 #elif defined(MK_8x12)
                                         // printf("mr %d nr %d MR %d NR %d\n", mr, nr, MR, NR);
                                         if ((mr == MR) && (nr == NR))
-                                            gemm_microkernel_Cresident_neon_fixed_8x12_fp32(
+                                            gemm_microkernel_Cresident_neon_8x12_fixed_fp32(
                                                     mr, nr, ib,
                                                     alpha,
                                                     &Ac[ir * ib],
@@ -300,7 +300,7 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                 &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
 #elif defined(MK_4x20)
                                         if ((mr == MR) && (nr == NR))
-                                            gemm_microkernel_Cresident_neon_fixed_4x20_fp32(
+                                            gemm_microkernel_Cresident_neon_4x20_fixed_fp32(
                                                     mr, nr, ib,
                                                     alpha,
                                                     &Ac[ir * ib],

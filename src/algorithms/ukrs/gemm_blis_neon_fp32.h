@@ -1,4 +1,4 @@
-/**
+/* 
  * This file is part of convDirect
  *
  * Copyright (C) 2021-22 Universitat Politècnica de València and
@@ -35,12 +35,12 @@ void gemm_microkernel_Cresident_neon_4x16_fp32(int, int, int, float, const float
 
 void gemm_microkernel_Cresident_neon_4x20_fp32(int, int, int, float, const float *, const float *, float, float *, int);
 
-void gemm_microkernel_Cresident_neon_fixed_4x20_fp32(int, int, int, float, const float *, const float *, float, float *,
+void gemm_microkernel_Cresident_neon_4x20_fixed_fp32(int, int, int, float, const float *, const float *, float, float *,
                                                      int);
 
 void gemm_microkernel_Cresident_neon_8x12_fp32(int, int, int, float, const float *, const float *, float, float *, int);
 
-void gemm_microkernel_Cresident_neon_fixed_8x12_fp32(int, int, int, float, const float *, const float *, float,
+void gemm_microkernel_Cresident_neon_8x12_fixed_fp32(int, int, int, float, const float *, const float *, float,
                                                      float *, int);
 
 
@@ -53,7 +53,7 @@ void gemm_microkernel_Cresident_neon_7x12_unroll_2_fp32(int, int, int, float, co
 void gemm_microkernel_Cresident_neon_7x12_unroll_4_fp32(int, int, int, float, const float *, const float *, float,
                                                         float *, int);
 
-void gemm_microkernel_Cresident_neon_7x12_unroll_4_fp32_fixed(int, int, int, float, const float *, const float *,
+void gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(int, int, int, float, const float *, const float *,
                                                               float, float *, int);
 
 
@@ -64,5 +64,5 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int, int, int, fl
 void gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
                                                                 const float *, float, float *, int);
 
-void gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32_fixed(int, int, int, float, const float *, int,
+void gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
                                                                       const float *, float, float *, int);

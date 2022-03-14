@@ -135,7 +135,7 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                         */
 #ifdef MK_7x12_NPA_U4
                                         if ((mr == MR) && (nr == NR))
-                                            gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32_fixed(
+                                            gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(
                                                     mr, nr, ib,
                                                     alpha,
                                                     &Drow_NHWC(h, i, l + n, k + ir + m),

@@ -234,7 +234,7 @@ void _TFMK(convDirect_block_tzemeng)(int t, int Co, int Ci,
                                     tvm_f(A, B, C, C);
                                 } else {
                                     if ((ob == MR) && (jb == NR))
-                                        gemm_microkernel_Cresident_neon_7x12_unroll_4_fp32_fixed(
+                                        gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(
                                                 ob, jb, ib,
                                                 1.0,
                                                 &DT(h, i2, l + n, k + m, 0),
@@ -355,7 +355,7 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                 ob = min(kb, Wo - k - m + 1);
 #ifdef MK_7x12_U4
                                 if ((ob == MR) && (jb == NR))
-                                    gemm_microkernel_Cresident_neon_7x12_unroll_4_fp32_fixed(
+                                    gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(
                                             ob, jb, ib,
                                             alpha,
                                             &DT(h, i2, l + n, k + m, 0),
