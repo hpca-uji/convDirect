@@ -1,0 +1,3 @@
+[submodule "src/convGemm"]
+	path = src/convGemm
+	url = https://github.com/hpca-uji/convGemm.git
