@@ -88,7 +88,7 @@ option and execute the ``all_close_test`` target. For example as in:
 ```shell
 cd build
 cmake -D CMAKE_INSTALL_PREFIX=~/opt/hpca_pydtnn -D COMPILE_TESTS=ON ..
-make all_close_test  # Alternatively:  cmake --build . --all_close_test
+make all_close_test  # Alternatively:  cmake --build . --target=all_close_test
 ```
 
 Please note that the performance results shown while performing this test can not be accurate as only one iteration of
