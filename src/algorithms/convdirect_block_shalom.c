@@ -22,8 +22,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "algorithms.h"
+#include "arm_neon.h"
 #include "../macros.h"
 #include "ukrs/gemm_blis_neon_fp32.h"
+
+#define Crow(a1, a2)  Cptr[ (a1)*(ldC)+(a2) ]
+#define Arow(a1, a2)  Ar[ (a1)*(ldA)+(a2) ]
+#define Atrow(a1, a2) Atmp[ (a1)*(ldAt)+(a2) ]
 
 #ifdef MK_7x12_NPA_U4
 #define MR 7
@@ -33,6 +38,18 @@
 #define WOB 1575
 #define COB 2052
 #define CIB 292
+
+#define fma_reg_broadcast(c_register, b_register, a_register, offset)\
+{\
+__asm__ volatile \
+(\
+  "fmla %[c_reg].4s, %[b_reg].4s, %[a_reg].s[" #offset "]                 \n\t"\
+:[c_reg] "+w" (c_register)\
+: [a_reg] "w" (a_register),\
+	[b_reg] "w" (b_register)\
+);\
+}
+
 
 // #undef TENSOR_FORMAT_NCHW /* @todo: borrar */
 
@@ -94,7 +111,30 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
     // For compatibility between output layer n and input layer n+1: n->m->i
 
     int h, i, j, k, l, m, n, i2, j2,
-            ho, wo, ii, jj, kk, ib, jb, kb, Cob_Nr = COB / NR;
+            ho, wo, ib, jb, kb, Cob_Nr = COB / NR;
+
+    /*
+    float32x4_t C00, C01, C02, 
+        C10, C11, C12, 
+        C20, C21, C22, 
+        C30, C31, C32, 
+        C40, C41, C42, 
+        C50, C51, C52, 
+        C60, C61, C62, 
+	A0, A1, A2, A3, A4, A5, A6,
+	B0, B1, B2;
+    */
+    int kr, baseB = 0, ldCt = NR, Amr, Bnr, ldAt = 4, ldBt = NR;
+    float32x4_t 
+            C00, C01, C02,
+            C10, C11, C12,
+            C20, C21, C22,
+            C30, C31, C32,
+            C40, C41, C42,
+            C50, C51, C52,
+            C60, C61, C62,
+            A0, A1, A2, A3, A4, A5, A6, B0, B1, B2;
+    float *Bptr, Ctmp[MR * NR], Atmp[MR * 4];
 
     int jr, nr, jr2, ir, mr;
 
@@ -121,44 +161,81 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                 for (l = 0; l < ho; l++) {
                     for (k = 0; k < wo; k += WOB) {
                         kb = min(wo - k, WOB);
-                        for (n = 0; n < min(Hf, Ho - l); n++) {
-                            for (m = 0; m < Wf; m++) {
-                                for (jr = 0, jr2 = 0; jr < jb; jr += NR, jr2++) {
-                                    nr = min(jb - jr, NR);
-                                    for (ir = 0; ir < min(kb, Wo - k - m + 1); ir += MR) {
-                                        mr = min(min(kb, Wo - k - m + 1) - ir, MR);
-                                        /*
-                                        gemm_base(mr, nr, ib,
-                                                  1.0, &Drow_NHWC(h, i, l+n, k+ir+m), ldD3,
-                                                  &FBrow_NHWC(j2*Cob_nr+jr2, i, n, m, 0), ldFB4,
-                                                  1.0, &Yrow_NHWC(h, j+jr, l, k+ir),     ldY3 );
-                                        */
+
+			// Reordered loops
+                        for (jr = 0, jr2 = 0; jr < jb; jr += NR, jr2++) {
+                            nr = min(jb - jr, NR);
+                            for (ir = 0; ir < min(kb, Wo - k - Wf + 1); ir += MR) {
+
+                                for (m = 0; m < Wf; m++) {
+                                    mr = min(min(kb, Wo - k - m + 1) - ir, MR);
+                                    // if ((mr == MR) && (nr == NR)) {
+                                    if ((mr == MR) && (nr == NR) && (ib % 4 == 0)) {
+                                        DTYPE *Cptr = &Yrow_NHWC(h, j + jr, l, k + ir);
+                                        uint64_t uldC = ldY3;
+
+                                        #include "ukrs/load_7x12_asm.c"
+					
+                                        for (n = 0; n < min(Hf, Ho - l); n++) {
+                                            /*
+                                            gemm_base(mr, nr, ib,
+                                                      1.0, &Drow_NHWC(h, i, l+n, k+ir+m), ldD3,
+                                                      &FBrow_NHWC(j2*Cob_nr+jr2, i, n, m, 0), ldFB4,
+                                                      1.0, &Yrow_NHWC(h, j+jr, l, k+ir),     ldY3 );
+                                            */
 #ifdef MK_7x12_NPA_U4
-                                        if ((mr == MR) && (nr == NR))
+					    float *Ar = &Drow_NHWC(h, i, l + n, k + ir + m);
+					    float *Br = &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0);
+
+					    uint64_t ukc  = ib;
+                                            uint64_t uldA = ldD3;
+
+					    /*
                                             gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(
                                                     mr, nr, ib,
                                                     alpha,
                                                     &Drow_NHWC(h, i, l + n, k + ir + m),
-                                                    ldD3, // 4
+                                                    ldD3, 
                                                     &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     beta,
                                                     &Yrow_NHWC(h, j + jr, l, k + ir),
                                                     ldY3);
-                                        else
-                                            gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32(
-                                                    mr, nr, ib,
-                                                    alpha,
-                                                    &Drow_NHWC(h, i, l + n, k + ir + m),
-                                                    ldD3, // 4
-                                                    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
-                                                    beta,
-                                                    &Yrow_NHWC(h, j + jr, l, k + ir),
-                                                    ldY3);
+                                            */
+                                            #include "ukrs/micro_7x12_asm_unroll_4.c"
+                                        }
+
+                                        #include "ukrs/store_7x12_asm.c"
+                                    }
+                                    else {
+                                        if ((mr == MR) && (nr == NR)) 
+                                            for (n = 0; n < min(Hf, Ho - l); n++) {
+                                                gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(
+                                                        mr, nr, ib,
+                                                        alpha,
+                                                        &Drow_NHWC(h, i, l + n, k + ir + m),
+                                                        ldD3, // 4
+                                                        &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
+                                                        beta,
+                                                        &Yrow_NHWC(h, j + jr, l, k + ir),
+                                                        ldY3);
+                                            }
+					else
+                                            for (n = 0; n < min(Hf, Ho - l); n++) {
+                                                gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32(
+                                                        mr, nr, ib,
+                                                        alpha,
+                                                        &Drow_NHWC(h, i, l + n, k + ir + m),
+                                                        ldD3, 
+                                                        &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
+                                                        beta,
+                                                        &Yrow_NHWC(h, j + jr, l, k + ir),
+                                                        ldY3);
+                                            }
+                                    }
 #else
                                         printf("Error: Microkernel doesn't exist.\n");
                                         exit(EXIT_FAILURE);
 #endif
-                                    }
                                 }
                             }
                         }
@@ -173,3 +250,4 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 void CONVDIRECT_PRE_KERNEL_POST;
 
 #undef ALGORITHM
+

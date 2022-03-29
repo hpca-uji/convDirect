@@ -23,6 +23,7 @@
 
 #include "compute_kernel_7x12.h"
 #include "compute_kernel_6x12.h"
+#include "compute_kernel_4x20.h"
 
 
 // Micro-kernels for BLIS
@@ -35,8 +36,9 @@ void gemm_microkernel_Cresident_neon_4x16_fp32(int, int, int, float, const float
 
 void gemm_microkernel_Cresident_neon_4x20_fp32(int, int, int, float, const float *, const float *, float, float *, int);
 
-void gemm_microkernel_Cresident_neon_4x20_fixed_fp32(int, int, int, float, const float *, const float *, float, float *,
-                                                     int);
+void gemm_microkernel_Cresident_neon_4x20_fixed_fp32(int, int, int, float, const float *, const float *, float, float *, int);
+
+void gemm_microkernel_Cresident_neon_4x20_fixed_unroll_2_fp32(int, int, int, float, const float *, const float *, float, float *, int);
 
 void gemm_microkernel_Cresident_neon_8x12_fp32(int, int, int, float, const float *, const float *, float, float *, int);
 
@@ -63,6 +65,9 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int, int, int, fl
 
 void gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
                                                                 const float *, float, float *, int);
+
+void gemm_microkernel_Cresident_assembly_7x12_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
+                                                                      const float *, float, float *, int);
 
 void gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
                                                                       const float *, float, float *, int);

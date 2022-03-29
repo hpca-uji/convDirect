@@ -174,8 +174,13 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                             packRB( 'R', 'N', kb, ib, D + h * ldD1, l, n, k, m, i, Ho, Wo,
                                 vpadding, hpadding, vstride, hstride, vdilation, hdilation,
                                 ldD2, ldD3, Ac, MR);
+			    //j2 = 0;
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {
+                            //for (j = 0; j < Co; j += COB) {
                                 jb = min(Co - j, COB);
+                                // #pragma omp parallel for private(nr, ir, mr, jr2)
+                                // for (jr = 0; jr < jb; jr += NR) {
+		                    //jr2 = jr/NR;
                                 for (jr = 0, jr2 = 0; jr < jb; jr += NR, jr2++) {
                                     nr = min(jb - jr, NR);
                                     for (ir = 0; ir < min(kb, Wo - k - m + 1); ir += MR) {
@@ -267,12 +272,19 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 #elif defined(MK_8x12)
                                         // printf("mr %d nr %d MR %d NR %d\n", mr, nr, MR, NR);
                                         if ((mr == MR) && (nr == NR))
+						/*
                                             gemm_microkernel_Cresident_neon_8x12_fixed_fp32(
                                                     mr, nr, ib,
                                                     alpha,
                                                     &Ac[ir * ib],
                                                     &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     beta,
+                                                    &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
+                                                 */
+                                            gemm_microkernel_Cresident_assembly_8x12_fixed_fp32(
+                                                    ib,
+                                                    &Ac[ir * ib],
+                                                    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
                                         else
                                             gemm_microkernel_Cresident_neon_8x12_fp32(
@@ -300,12 +312,20 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                 &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
 #elif defined(MK_4x20)
                                         if ((mr == MR) && (nr == NR))
+                                            /*
+                                            // gemm_microkernel_Cresident_neon_4x20_fixed_unroll_2_fp32(
                                             gemm_microkernel_Cresident_neon_4x20_fixed_fp32(
                                                     mr, nr, ib,
                                                     alpha,
                                                     &Ac[ir * ib],
                                                     &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     beta,
+                                                    &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
+                                           */
+					   gemm_microkernel_Cresident_assembly_4x20_fixed_fp32(
+                                                    ib,
+                                                    &Ac[ir * ib],
+                                                    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
                                         else
                                             gemm_microkernel_Cresident_neon_4x20_fp32(

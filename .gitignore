@@ -61,3 +61,4 @@ plots
 performance_results
 .idea/
 cmake-build-debug/
+*.swp
