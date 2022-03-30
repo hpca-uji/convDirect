@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import os
@@ -10,6 +10,7 @@ plots_titles_suffix = ""
 dfs = {}
 best_dfs = {}
 blis_dfs = {}
+shalom_dfs = {}
 
 
 def my_help():
@@ -50,13 +51,13 @@ def process_args():
         plots_titles_suffix = "performance on {}".format(host_info)
 
 
-IM2COL, CONVGEMM, BLIS_8X12, BLIS_4X20, BLIS_BLIS, SHALOM, TZEMENG = ("Im2col", "ConvGemm",
-                                                                      "Blis_mk-8x12", "Blis_mk-4x20", "Blis_mk-blis",
-                                                                      "Shalom", "Tze-Meng")
+(IM2COL, CONVGEMM, BLIS_8X12, BLIS_4X20, BLIS_BLIS,
+ SHALOM_7x12, SHALOM_6x16, TZEMENG) = ("Im2col", "ConvGemm", "Blis_mk-8x12", "Blis_mk-4x20", "Blis_mk-blis",
+                                       "Shalom-7x12", "Shalom-6x16", "Tze-Meng")
 
 
 def performance_results():
-    global dfs, best_dfs, blis_dfs
+    global dfs, best_dfs, blis_dfs, shalom_dfs
     output_dir = os.path.join(input_dir, "performance_results")
 
     method_from = {
@@ -65,10 +66,11 @@ def performance_results():
         "convdirect_block_blis_nhwc_8x12": BLIS_8X12,
         "convdirect_block_blis_nhwc_4x20": BLIS_4X20,
         "convdirect_block_blis_nhwc_blis": BLIS_BLIS,
-        "convdirect_block_shalom_nhwc_7x12_npa_u4": SHALOM,
+        "convdirect_block_shalom_nhwc_7x12_npa_u4": SHALOM_7x12,
+        "convdirect_block_shalom_nhwc_6x16_npa_u4": SHALOM_6x16,
         "convdirect_tzemeng_nhwc_7x12_u4": TZEMENG,
     }
-    cols_ordered = [IM2COL, CONVGEMM, SHALOM, BLIS_8X12, BLIS_4X20, BLIS_BLIS, TZEMENG]
+    cols_ordered = [IM2COL, CONVGEMM, SHALOM_7x12, SHALOM_6x16, BLIS_8X12, BLIS_4X20, BLIS_BLIS, TZEMENG]
 
     try:
         import pandas as pd
@@ -112,14 +114,26 @@ def performance_results():
         df_net = df.query("Net == '{}'".format(net)).pivot_table(values="GFLOPS", index="#Layer", columns="Method")
         cols_present = df_net.columns.tolist()
         df_net = df_net[[c for c in cols_ordered if c in cols_present]]
-        df_net["Im2col vs ConvGemm"] = df_net[[IM2COL, CONVGEMM]].max(axis=1)
+        # Best(Im2col, ConvGemm)
+        im2col_convgemm_label = "Best(Im2col, ConvGemm)"
+        df_net[im2col_convgemm_label] = df_net[[IM2COL, CONVGEMM]].max(axis=1)
+        # Best of BLIS methods
         blis_cols = [c for c in [BLIS_8X12, BLIS_4X20, BLIS_BLIS] if c in cols_present]
         blis_label = None
         if len(blis_cols) > 1:
-            blis_label = " vs ".join(blis_cols)
+            blis_label = "Best({})".format(", ".join(blis_cols))
             df_net[blis_label] = df_net[blis_cols].max(axis=1)
         elif len(blis_cols) == 1:
             blis_label = blis_cols[0]
+        # Best of Shalom methods
+        shalom_cols = [c for c in [SHALOM_7x12, SHALOM_6x16] if c in cols_present]
+        shalom_label = None
+        if len(shalom_cols) > 1:
+            shalom_label = "Best({})".format(", ".join(shalom_cols))
+            df_net[shalom_label] = df_net[shalom_cols].max(axis=1)
+        elif len(shalom_cols) == 1:
+            shalom_label = shalom_cols[0]
+        # ---
         basename = os.path.join(output_dir, net)
         df_net.to_csv("{}.csv".format(basename), sep=";")
         df_net.to_markdown("{}.txt".format(basename))
@@ -130,9 +144,7 @@ def performance_results():
         dfs[net] = df_net
         # ---
         cols_present = df_net.columns.tolist()
-        best_cols = [c for c in ["Im2col vs ConvGemm", TZEMENG, SHALOM] if c in cols_present]
-        if blis_label:
-            best_cols.append(blis_label)
+        best_cols = [c for c in [im2col_convgemm_label, TZEMENG, shalom_label, blis_label] if c in cols_present]
         best_df_net = df_net[best_cols].reset_index()
         best_dfs[net] = best_df_net
         # print(best_df_net.to_markdown())
@@ -141,13 +153,17 @@ def performance_results():
             blis_df_net = df_net[blis_cols].reset_index()
             blis_dfs[net] = blis_df_net
             # print(blis_df_net.to_markdown())
+        if len(shalom_cols):
+            shalom_df_net = df_net[shalom_cols].reset_index()
+            shalom_dfs[net] = shalom_df_net
+            # print(blis_df_net.to_markdown())
 
     print()
     print("The performance results are in '{}'\n".format(os.path.abspath(output_dir)))
 
 
 def plots_matplotlib():
-    global best_dfs, blis_dfs
+    global best_dfs, blis_dfs, shalom_dfs
     output_dir = os.path.join(input_dir, "plots")
 
     print("\033[1m\033[32mGENERATING PLOTS\033[0m")
@@ -203,6 +219,11 @@ def plots_matplotlib():
     for net, df in blis_dfs.items():
         plot_title = "{} {}".format(net, plots_titles_suffix)
         filename = "blis_{}.pdf".format(plot_title.replace(" ", "_").replace("(", "").replace(")", "")).lower()
+        bars(df, plot_title, os.path.join(output_dir, filename))
+
+    for net, df in shalom_dfs.items():
+        plot_title = "{} {}".format(net, plots_titles_suffix)
+        filename = "shalom_{}.pdf".format(plot_title.replace(" ", "_").replace("(", "").replace(")", "")).lower()
         bars(df, plot_title, os.path.join(output_dir, filename))
 
     print()
