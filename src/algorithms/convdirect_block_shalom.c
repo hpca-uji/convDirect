@@ -33,23 +33,14 @@
 #ifdef MK_7x12_NPA_U4
 #define MR 7
 #define NR 12
+#elif MK_6x16_NPA_U4
+#define MR 6
+#define NR 16
 #endif
 
 #define WOB 1575
 #define COB 2052
 #define CIB 292
-
-#define fma_reg_broadcast(c_register, b_register, a_register, offset)\
-{\
-__asm__ volatile \
-(\
-  "fmla %[c_reg].4s, %[b_reg].4s, %[a_reg].s[" #offset "]                 \n\t"\
-:[c_reg] "+w" (c_register)\
-: [a_reg] "w" (a_register),\
-	[b_reg] "w" (b_register)\
-);\
-}
-
 
 // #undef TENSOR_FORMAT_NCHW /* @todo: borrar */
 
@@ -169,44 +160,38 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
 
                                 for (m = 0; m < Wf; m++) {
                                     mr = min(min(kb, Wo - k - m + 1) - ir, MR);
-                                    // if ((mr == MR) && (nr == NR)) {
                                     if ((mr == MR) && (nr == NR) && (ib % 4 == 0)) {
                                         DTYPE *Cptr = &Yrow_NHWC(h, j + jr, l, k + ir);
                                         uint64_t uldC = ldY3;
-
-                                        #include "ukrs/load_7x12_asm.c"
-					
-                                        for (n = 0; n < min(Hf, Ho - l); n++) {
-                                            /*
-                                            gemm_base(mr, nr, ib,
-                                                      1.0, &Drow_NHWC(h, i, l+n, k+ir+m), ldD3,
-                                                      &FBrow_NHWC(j2*Cob_nr+jr2, i, n, m, 0), ldFB4,
-                                                      1.0, &Yrow_NHWC(h, j+jr, l, k+ir),     ldY3 );
-                                            */
 #ifdef MK_7x12_NPA_U4
+                                        #include "ukrs/load_7x12_asm.c"
+#elif MK_6x16_NPA_U4
+                                        #include "ukrs/load_6x16_asm.c"
+#else
+                                        printf("Error: Microkernel doesn't exist.\n");
+                                        exit(EXIT_FAILURE);
+#endif
+                                        for (n = 0; n < min(Hf, Ho - l); n++) {
 					    float *Ar = &Drow_NHWC(h, i, l + n, k + ir + m);
 					    float *Br = &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0);
 
 					    uint64_t ukc  = ib;
                                             uint64_t uldA = ldD3;
-
-					    /*
-                                            gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(
-                                                    mr, nr, ib,
-                                                    alpha,
-                                                    &Drow_NHWC(h, i, l + n, k + ir + m),
-                                                    ldD3, 
-                                                    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
-                                                    beta,
-                                                    &Yrow_NHWC(h, j + jr, l, k + ir),
-                                                    ldY3);
-                                            */
+#ifdef MK_7x12_NPA_U4
                                             #include "ukrs/micro_7x12_asm_unroll_4.c"
+#elif MK_6x16_NPA_U4
+                                            #include "ukrs/micro_6x16_asm_unroll_4.c"
+#endif
                                         }
 
+#ifdef MK_7x12_NPA_U4
                                         #include "ukrs/store_7x12_asm.c"
+#elif MK_6x16_NPA_U4
+                                        #include "ukrs/store_6x16_asm.c"
+#endif
                                     }
                                     else {
+#ifdef MK_7x12_NPA_U4
                                         if ((mr == MR) && (nr == NR)) 
                                             for (n = 0; n < min(Hf, Ho - l); n++) {
                                                 gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(
@@ -231,11 +216,33 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                         &Yrow_NHWC(h, j + jr, l, k + ir),
                                                         ldY3);
                                             }
-                                    }
-#else
-                                        printf("Error: Microkernel doesn't exist.\n");
-                                        exit(EXIT_FAILURE);
+#elif MK_6x16_NPA_U4
+                                        if ((mr == MR) && (nr == NR)) 
+                                            for (n = 0; n < min(Hf, Ho - l); n++) {
+                                                gemm_microkernel_Cresident_neon_6x16_fixed_nopackA_unroll_4_fp32(
+                                                            mr, nr, ib,
+                                                            alpha,
+                                                            &Drow_NHWC(h, i, l + n, k + ir + m),
+                                                            ldD3, 
+                                                            &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
+                                                            beta,
+                                                            &Yrow_NHWC(h, j + jr, l, k + ir),
+                                                            ldY3);
+                                            }
+					else
+                                            for (n = 0; n < min(Hf, Ho - l); n++) {
+                                                gemm_microkernel_Cresident_neon_6x16_nopackA_unroll_4_fp32(
+                                                            mr, nr, ib,
+                                                            alpha,
+                                                            &Drow_NHWC(h, i, l + n, k + ir + m),
+                                                            ldD3, 
+                                                            &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
+                                                            beta,
+                                                            &Yrow_NHWC(h, j + jr, l, k + ir),
+                                                            ldY3);
+                                            }
 #endif
+                                    }
                                 }
                             }
                         }

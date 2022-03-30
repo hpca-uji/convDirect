@@ -324,34 +324,13 @@ void gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(int mr, int nr, in
     if (kc == 0)
         return;
 
-    // C00 = vmovq_n_f32(0); C01 = vmovq_n_f32(0); C02 = vmovq_n_f32(0);
-    // C10 = vmovq_n_f32(0); C11 = vmovq_n_f32(0); C12 = vmovq_n_f32(0);
-    // C20 = vmovq_n_f32(0); C21 = vmovq_n_f32(0); C22 = vmovq_n_f32(0);
-    // C30 = vmovq_n_f32(0); C31 = vmovq_n_f32(0); C32 = vmovq_n_f32(0);
-    // C40 = vmovq_n_f32(0); C41 = vmovq_n_f32(0); C42 = vmovq_n_f32(0);
-    // C50 = vmovq_n_f32(0); C51 = vmovq_n_f32(0); C52 = vmovq_n_f32(0);
-    // C60 = vmovq_n_f32(0); C61 = vmovq_n_f32(0); C62 = vmovq_n_f32(0);
-    C00 = vld1q_f32(&Crow(0, 0));
-    C01 = vld1q_f32(&Crow(0, 4));
-    C02 = vld1q_f32(&Crow(0, 8));
-    C10 = vld1q_f32(&Crow(1, 0));
-    C11 = vld1q_f32(&Crow(1, 4));
-    C12 = vld1q_f32(&Crow(1, 8));
-    C20 = vld1q_f32(&Crow(2, 0));
-    C21 = vld1q_f32(&Crow(2, 4));
-    C22 = vld1q_f32(&Crow(2, 8));
-    C30 = vld1q_f32(&Crow(3, 0));
-    C31 = vld1q_f32(&Crow(3, 4));
-    C32 = vld1q_f32(&Crow(3, 8));
-    C40 = vld1q_f32(&Crow(4, 0));
-    C41 = vld1q_f32(&Crow(4, 4));
-    C42 = vld1q_f32(&Crow(4, 8));
-    C50 = vld1q_f32(&Crow(5, 0));
-    C51 = vld1q_f32(&Crow(5, 4));
-    C52 = vld1q_f32(&Crow(5, 8));
-    C60 = vld1q_f32(&Crow(6, 0));
-    C61 = vld1q_f32(&Crow(6, 4));
-    C62 = vld1q_f32(&Crow(6, 8));
+    C00 = vld1q_f32(&Crow(0, 0)); C01 = vld1q_f32(&Crow(0, 4)); C02 = vld1q_f32(&Crow(0, 8));
+    C10 = vld1q_f32(&Crow(1, 0)); C11 = vld1q_f32(&Crow(1, 4)); C12 = vld1q_f32(&Crow(1, 8));
+    C20 = vld1q_f32(&Crow(2, 0)); C21 = vld1q_f32(&Crow(2, 4)); C22 = vld1q_f32(&Crow(2, 8));
+    C30 = vld1q_f32(&Crow(3, 0)); C31 = vld1q_f32(&Crow(3, 4)); C32 = vld1q_f32(&Crow(3, 8));
+    C40 = vld1q_f32(&Crow(4, 0)); C41 = vld1q_f32(&Crow(4, 4)); C42 = vld1q_f32(&Crow(4, 8));
+    C50 = vld1q_f32(&Crow(5, 0)); C51 = vld1q_f32(&Crow(5, 4)); C52 = vld1q_f32(&Crow(5, 8));
+    C60 = vld1q_f32(&Crow(6, 0)); C61 = vld1q_f32(&Crow(6, 4)); C62 = vld1q_f32(&Crow(6, 8));
 
     Bptr = &Br[0];
     Bnr = NR;
@@ -372,105 +351,49 @@ void gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(int mr, int nr, in
       B1 = vld1q_f32(&Bptr[baseB + 4]); \
       B2 = vld1q_f32(&Bptr[baseB + 8]); \
 \
-      C00 = vfmaq_laneq_f32(C00, B0, A0, 0);
-        C01 = vfmaq_laneq_f32(C01, B1, A0, 0);
-        C02 = vfmaq_laneq_f32(C02, B2, A0, 0); \
-      C10 = vfmaq_laneq_f32(C10, B0, A1, 0);
-        C11 = vfmaq_laneq_f32(C11, B1, A1, 0);
-        C12 = vfmaq_laneq_f32(C12, B2, A1, 0); \
-      C20 = vfmaq_laneq_f32(C20, B0, A2, 0);
-        C21 = vfmaq_laneq_f32(C21, B1, A2, 0);
-        C22 = vfmaq_laneq_f32(C22, B2, A2, 0); \
-      C30 = vfmaq_laneq_f32(C30, B0, A3, 0);
-        C31 = vfmaq_laneq_f32(C31, B1, A3, 0);
-        C32 = vfmaq_laneq_f32(C32, B2, A3, 0); \
-      C40 = vfmaq_laneq_f32(C40, B0, A4, 0);
-        C41 = vfmaq_laneq_f32(C41, B1, A4, 0);
-        C42 = vfmaq_laneq_f32(C42, B2, A4, 0); \
-      C50 = vfmaq_laneq_f32(C50, B0, A5, 0);
-        C51 = vfmaq_laneq_f32(C51, B1, A5, 0);
-        C52 = vfmaq_laneq_f32(C52, B2, A5, 0); \
-      C60 = vfmaq_laneq_f32(C60, B0, A6, 0);
-        C61 = vfmaq_laneq_f32(C61, B1, A6, 0);
-        C62 = vfmaq_laneq_f32(C62, B2, A6, 0); \
+      C00 = vfmaq_laneq_f32(C00, B0, A0, 0); C01 = vfmaq_laneq_f32(C01, B1, A0, 0); C02 = vfmaq_laneq_f32(C02, B2, A0, 0); \
+      C10 = vfmaq_laneq_f32(C10, B0, A1, 0); C11 = vfmaq_laneq_f32(C11, B1, A1, 0); C12 = vfmaq_laneq_f32(C12, B2, A1, 0); \
+      C20 = vfmaq_laneq_f32(C20, B0, A2, 0); C21 = vfmaq_laneq_f32(C21, B1, A2, 0); C22 = vfmaq_laneq_f32(C22, B2, A2, 0); \
+      C30 = vfmaq_laneq_f32(C30, B0, A3, 0); C31 = vfmaq_laneq_f32(C31, B1, A3, 0); C32 = vfmaq_laneq_f32(C32, B2, A3, 0); \
+      C40 = vfmaq_laneq_f32(C40, B0, A4, 0); C41 = vfmaq_laneq_f32(C41, B1, A4, 0); C42 = vfmaq_laneq_f32(C42, B2, A4, 0); \
+      C50 = vfmaq_laneq_f32(C50, B0, A5, 0); C51 = vfmaq_laneq_f32(C51, B1, A5, 0); C52 = vfmaq_laneq_f32(C52, B2, A5, 0); \
+      C60 = vfmaq_laneq_f32(C60, B0, A6, 0); C61 = vfmaq_laneq_f32(C61, B1, A6, 0); C62 = vfmaq_laneq_f32(C62, B2, A6, 0); \
 \
       B0 = vld1q_f32(&Bptr[baseB + 12]); \
       B1 = vld1q_f32(&Bptr[baseB + 16]); \
       B2 = vld1q_f32(&Bptr[baseB + 20]); \
 \
-      C00 = vfmaq_laneq_f32(C00, B0, A0, 1);
-        C01 = vfmaq_laneq_f32(C01, B1, A0, 1);
-        C02 = vfmaq_laneq_f32(C02, B2, A0, 1); \
-      C10 = vfmaq_laneq_f32(C10, B0, A1, 1);
-        C11 = vfmaq_laneq_f32(C11, B1, A1, 1);
-        C12 = vfmaq_laneq_f32(C12, B2, A1, 1); \
-      C20 = vfmaq_laneq_f32(C20, B0, A2, 1);
-        C21 = vfmaq_laneq_f32(C21, B1, A2, 1);
-        C22 = vfmaq_laneq_f32(C22, B2, A2, 1); \
-      C30 = vfmaq_laneq_f32(C30, B0, A3, 1);
-        C31 = vfmaq_laneq_f32(C31, B1, A3, 1);
-        C32 = vfmaq_laneq_f32(C32, B2, A3, 1); \
-      C40 = vfmaq_laneq_f32(C40, B0, A4, 1);
-        C41 = vfmaq_laneq_f32(C41, B1, A4, 1);
-        C42 = vfmaq_laneq_f32(C42, B2, A4, 1); \
-      C50 = vfmaq_laneq_f32(C50, B0, A5, 1);
-        C51 = vfmaq_laneq_f32(C51, B1, A5, 1);
-        C52 = vfmaq_laneq_f32(C52, B2, A5, 1); \
-      C60 = vfmaq_laneq_f32(C60, B0, A6, 1);
-        C61 = vfmaq_laneq_f32(C61, B1, A6, 1);
-        C62 = vfmaq_laneq_f32(C62, B2, A6, 1); \
+      C00 = vfmaq_laneq_f32(C00, B0, A0, 1); C01 = vfmaq_laneq_f32(C01, B1, A0, 1); C02 = vfmaq_laneq_f32(C02, B2, A0, 1); \
+      C10 = vfmaq_laneq_f32(C10, B0, A1, 1); C11 = vfmaq_laneq_f32(C11, B1, A1, 1); C12 = vfmaq_laneq_f32(C12, B2, A1, 1); \
+      C20 = vfmaq_laneq_f32(C20, B0, A2, 1); C21 = vfmaq_laneq_f32(C21, B1, A2, 1); C22 = vfmaq_laneq_f32(C22, B2, A2, 1); \
+      C30 = vfmaq_laneq_f32(C30, B0, A3, 1); C31 = vfmaq_laneq_f32(C31, B1, A3, 1); C32 = vfmaq_laneq_f32(C32, B2, A3, 1); \
+      C40 = vfmaq_laneq_f32(C40, B0, A4, 1); C41 = vfmaq_laneq_f32(C41, B1, A4, 1); C42 = vfmaq_laneq_f32(C42, B2, A4, 1); \
+      C50 = vfmaq_laneq_f32(C50, B0, A5, 1); C51 = vfmaq_laneq_f32(C51, B1, A5, 1); C52 = vfmaq_laneq_f32(C52, B2, A5, 1); \
+      C60 = vfmaq_laneq_f32(C60, B0, A6, 1); C61 = vfmaq_laneq_f32(C61, B1, A6, 1); C62 = vfmaq_laneq_f32(C62, B2, A6, 1); \
 \
       B0 = vld1q_f32(&Bptr[baseB + 24]); \
       B1 = vld1q_f32(&Bptr[baseB + 28]); \
       B2 = vld1q_f32(&Bptr[baseB + 32]); \
 \
-      C00 = vfmaq_laneq_f32(C00, B0, A0, 2);
-        C01 = vfmaq_laneq_f32(C01, B1, A0, 2);
-        C02 = vfmaq_laneq_f32(C02, B2, A0, 2); \
-      C10 = vfmaq_laneq_f32(C10, B0, A1, 2);
-        C11 = vfmaq_laneq_f32(C11, B1, A1, 2);
-        C12 = vfmaq_laneq_f32(C12, B2, A1, 2); \
-      C20 = vfmaq_laneq_f32(C20, B0, A2, 2);
-        C21 = vfmaq_laneq_f32(C21, B1, A2, 2);
-        C22 = vfmaq_laneq_f32(C22, B2, A2, 2); \
-      C30 = vfmaq_laneq_f32(C30, B0, A3, 2);
-        C31 = vfmaq_laneq_f32(C31, B1, A3, 2);
-        C32 = vfmaq_laneq_f32(C32, B2, A3, 2); \
-      C40 = vfmaq_laneq_f32(C40, B0, A4, 2);
-        C41 = vfmaq_laneq_f32(C41, B1, A4, 2);
-        C42 = vfmaq_laneq_f32(C42, B2, A4, 2); \
-      C50 = vfmaq_laneq_f32(C50, B0, A5, 2);
-        C51 = vfmaq_laneq_f32(C51, B1, A5, 2);
-        C52 = vfmaq_laneq_f32(C52, B2, A5, 2); \
-      C60 = vfmaq_laneq_f32(C60, B0, A6, 2);
-        C61 = vfmaq_laneq_f32(C61, B1, A6, 2);
-        C62 = vfmaq_laneq_f32(C62, B2, A6, 2); \
+      C00 = vfmaq_laneq_f32(C00, B0, A0, 2); C01 = vfmaq_laneq_f32(C01, B1, A0, 2); C02 = vfmaq_laneq_f32(C02, B2, A0, 2); \
+      C10 = vfmaq_laneq_f32(C10, B0, A1, 2); C11 = vfmaq_laneq_f32(C11, B1, A1, 2); C12 = vfmaq_laneq_f32(C12, B2, A1, 2); \
+      C20 = vfmaq_laneq_f32(C20, B0, A2, 2); C21 = vfmaq_laneq_f32(C21, B1, A2, 2); C22 = vfmaq_laneq_f32(C22, B2, A2, 2); \
+      C30 = vfmaq_laneq_f32(C30, B0, A3, 2); C31 = vfmaq_laneq_f32(C31, B1, A3, 2); C32 = vfmaq_laneq_f32(C32, B2, A3, 2); \
+      C40 = vfmaq_laneq_f32(C40, B0, A4, 2); C41 = vfmaq_laneq_f32(C41, B1, A4, 2); C42 = vfmaq_laneq_f32(C42, B2, A4, 2); \
+      C50 = vfmaq_laneq_f32(C50, B0, A5, 2); C51 = vfmaq_laneq_f32(C51, B1, A5, 2); C52 = vfmaq_laneq_f32(C52, B2, A5, 2); \
+      C60 = vfmaq_laneq_f32(C60, B0, A6, 2); C61 = vfmaq_laneq_f32(C61, B1, A6, 2); C62 = vfmaq_laneq_f32(C62, B2, A6, 2); \
 \
       B0 = vld1q_f32(&Bptr[baseB + 36]); \
       B1 = vld1q_f32(&Bptr[baseB + 40]); \
       B2 = vld1q_f32(&Bptr[baseB + 44]); \
 \
-      C00 = vfmaq_laneq_f32(C00, B0, A0, 3);
-        C01 = vfmaq_laneq_f32(C01, B1, A0, 3);
-        C02 = vfmaq_laneq_f32(C02, B2, A0, 3); \
-      C10 = vfmaq_laneq_f32(C10, B0, A1, 3);
-        C11 = vfmaq_laneq_f32(C11, B1, A1, 3);
-        C12 = vfmaq_laneq_f32(C12, B2, A1, 3); \
-      C20 = vfmaq_laneq_f32(C20, B0, A2, 3);
-        C21 = vfmaq_laneq_f32(C21, B1, A2, 3);
-        C22 = vfmaq_laneq_f32(C22, B2, A2, 3); \
-      C30 = vfmaq_laneq_f32(C30, B0, A3, 3);
-        C31 = vfmaq_laneq_f32(C31, B1, A3, 3);
-        C32 = vfmaq_laneq_f32(C32, B2, A3, 3); \
-      C40 = vfmaq_laneq_f32(C40, B0, A4, 3);
-        C41 = vfmaq_laneq_f32(C41, B1, A4, 3);
-        C42 = vfmaq_laneq_f32(C42, B2, A4, 3); \
-      C50 = vfmaq_laneq_f32(C50, B0, A5, 3);
-        C51 = vfmaq_laneq_f32(C51, B1, A5, 3);
-        C52 = vfmaq_laneq_f32(C52, B2, A5, 3); \
-      C60 = vfmaq_laneq_f32(C60, B0, A6, 3);
-        C61 = vfmaq_laneq_f32(C61, B1, A6, 3);
-        C62 = vfmaq_laneq_f32(C62, B2, A6, 3); \
+      C00 = vfmaq_laneq_f32(C00, B0, A0, 3); C01 = vfmaq_laneq_f32(C01, B1, A0, 3); C02 = vfmaq_laneq_f32(C02, B2, A0, 3); \
+      C10 = vfmaq_laneq_f32(C10, B0, A1, 3); C11 = vfmaq_laneq_f32(C11, B1, A1, 3); C12 = vfmaq_laneq_f32(C12, B2, A1, 3); \
+      C20 = vfmaq_laneq_f32(C20, B0, A2, 3); C21 = vfmaq_laneq_f32(C21, B1, A2, 3); C22 = vfmaq_laneq_f32(C22, B2, A2, 3); \
+      C30 = vfmaq_laneq_f32(C30, B0, A3, 3); C31 = vfmaq_laneq_f32(C31, B1, A3, 3); C32 = vfmaq_laneq_f32(C32, B2, A3, 3); \
+      C40 = vfmaq_laneq_f32(C40, B0, A4, 3); C41 = vfmaq_laneq_f32(C41, B1, A4, 3); C42 = vfmaq_laneq_f32(C42, B2, A4, 3); \
+      C50 = vfmaq_laneq_f32(C50, B0, A5, 3); C51 = vfmaq_laneq_f32(C51, B1, A5, 3); C52 = vfmaq_laneq_f32(C52, B2, A5, 3); \
+      C60 = vfmaq_laneq_f32(C60, B0, A6, 3); C61 = vfmaq_laneq_f32(C61, B1, A6, 3); C62 = vfmaq_laneq_f32(C62, B2, A6, 3); \
 
         baseB = baseB + 4 * Bnr;
     }
@@ -506,27 +429,13 @@ void gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(int mr, int nr, in
         COMPUTE_KERNEL_7x12_UNROLL_3  // Code for single iteration 7x12 in file compute_kernel_7x12.h
     }
 
-    vst1q_f32(&Crow(0, 0), C00);
-    vst1q_f32(&Crow(0, 4), C01);
-    vst1q_f32(&Crow(0, 8), C02);
-    vst1q_f32(&Crow(1, 0), C10);
-    vst1q_f32(&Crow(1, 4), C11);
-    vst1q_f32(&Crow(1, 8), C12);
-    vst1q_f32(&Crow(2, 0), C20);
-    vst1q_f32(&Crow(2, 4), C21);
-    vst1q_f32(&Crow(2, 8), C22);
-    vst1q_f32(&Crow(3, 0), C30);
-    vst1q_f32(&Crow(3, 4), C31);
-    vst1q_f32(&Crow(3, 8), C32);
-    vst1q_f32(&Crow(4, 0), C40);
-    vst1q_f32(&Crow(4, 4), C41);
-    vst1q_f32(&Crow(4, 8), C42);
-    vst1q_f32(&Crow(5, 0), C50);
-    vst1q_f32(&Crow(5, 4), C51);
-    vst1q_f32(&Crow(5, 8), C52);
-    vst1q_f32(&Crow(6, 0), C60);
-    vst1q_f32(&Crow(6, 4), C61);
-    vst1q_f32(&Crow(6, 8), C62);
+    vst1q_f32(&Crow(0, 0), C00); vst1q_f32(&Crow(0, 4), C01); vst1q_f32(&Crow(0, 8), C02);
+    vst1q_f32(&Crow(1, 0), C10); vst1q_f32(&Crow(1, 4), C11); vst1q_f32(&Crow(1, 8), C12);
+    vst1q_f32(&Crow(2, 0), C20); vst1q_f32(&Crow(2, 4), C21); vst1q_f32(&Crow(2, 8), C22);
+    vst1q_f32(&Crow(3, 0), C30); vst1q_f32(&Crow(3, 4), C31); vst1q_f32(&Crow(3, 8), C32);
+    vst1q_f32(&Crow(4, 0), C40); vst1q_f32(&Crow(4, 4), C41); vst1q_f32(&Crow(4, 8), C42);
+    vst1q_f32(&Crow(5, 0), C50); vst1q_f32(&Crow(5, 4), C51); vst1q_f32(&Crow(5, 8), C52);
+    vst1q_f32(&Crow(6, 0), C60); vst1q_f32(&Crow(6, 4), C61); vst1q_f32(&Crow(6, 8), C62);
 }
 
 void gemm_microkernel_Cresident_neon_4x4_prefetch_fp32(int mr, int nr, int kc, float alpha,
@@ -1200,15 +1109,16 @@ void gemm_microkernel_Cresident_neon_7x12_unroll_2_fp32(int mr, int nr, int kc, 
 }
 
 
+/*
 void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int mr, int nr, int kc, float alpha,
                                                                const float *Ar, int ldA,
                                                                const float *Br, int ldB,
                                                                float beta,
                                                                float *C, int ldC) {
-/*
+/ 
   BLIS GEMM microkernel, computes the product Cr := Cr + Ar * Br
   Specific: only for MRxNR = 7x12, with kc<=12
-*/
+ /
     SET_MR_NR(7, 12);
 
     int i, j, k, baseB = 0, ldCt = NR, Amr, Bnr, ldAt = 4, ldBt = NR;
@@ -1246,7 +1156,7 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int mr, int nr, i
     C60 = vmovq_n_f32(0);
     C61 = vmovq_n_f32(0);
     C62 = vmovq_n_f32(0);
-    /*
+    //
       C00  = vld1q_f32(&Crow(0,0)); C01  = vld1q_f32(&Crow(0,4)); C02  = vld1q_f32(&Crow(0,8));
       C10  = vld1q_f32(&Crow(1,0)); C11  = vld1q_f32(&Crow(1,4)); C12  = vld1q_f32(&Crow(1,8));
       C20  = vld1q_f32(&Crow(2,0)); C21  = vld1q_f32(&Crow(2,4)); C22  = vld1q_f32(&Crow(2,8));
@@ -1254,7 +1164,7 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int mr, int nr, i
       C40  = vld1q_f32(&Crow(4,0)); C41  = vld1q_f32(&Crow(4,4)); C42  = vld1q_f32(&Crow(4,8));
       C50  = vld1q_f32(&Crow(5,0)); C51  = vld1q_f32(&Crow(5,4)); C52  = vld1q_f32(&Crow(5,8));
       C60  = vld1q_f32(&Crow(6,0)); C61  = vld1q_f32(&Crow(6,4)); C62  = vld1q_f32(&Crow(6,8));
-  */
+  //
 
     Bptr = &Br[0];
     Bnr = NR;
@@ -1313,7 +1223,7 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int mr, int nr, i
         COMPUTE_KERNEL_7x12_NOPACK_UNROLL_3  // Code for single iteration 7x12 in file compute_kernel_7x12.h
     }
 
-    /*
+    / 
     if ( alpha==-one ) {
       C00 = -C00; C01 = -C01; C02 = -C02;
       C10 = -C10; C11 = -C11; C12 = -C12;
@@ -1332,7 +1242,7 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int mr, int nr, i
       C50 = alpha*C50; C51 = alpha*C51; C52 = alpha*C52;
       C60 = alpha*C60; C61 = alpha*C61; C62 = alpha*C62;
     }
-    */
+    /
     //}
 
     if ((mr < MR) || (nr < NR)) {
@@ -1446,6 +1356,7 @@ void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int mr, int nr, i
         exit(-1);
     }
 }
+*/
 
 void gemm_microkernel_Cresident_neon_8x12_fp32(int mr, int nr, int kc, float alpha,
                                                const float *Ar,
@@ -3535,5 +3446,693 @@ void gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(int mr, in
     vst1q_f32(&Crow(6, 0), C60);
     vst1q_f32(&Crow(6, 4), C61);
     vst1q_f32(&Crow(6, 8), C62);
+}
+
+void gemm_microkernel_Cresident_neon_6x16_nopackA_unroll_4_fp32(int mr, int nr, int kc, float alpha,
+                                                                const float *Ar, int ldA,
+                                                                const float *Br,
+                                                                float beta,
+                                                                float *C, int ldC) {
+/*
+  BLIS GEMM microkernel, computes the product Cr := Cr + Ar * Br
+  Specific: only for MRxNR = 6x16, with kc<=12
+*/
+    SET_MR_NR(6, 16);
+
+    int i, j, k, baseB = 0, ldCt = NR, Amr, Bnr, ldAt = 4, ldBt = NR;
+    float32x4_t C00, C01, C02, C03,
+                C10, C11, C12, C13,
+                C20, C21, C22, C23,
+                C30, C31, C32, C33,
+                C40, C41, C42, C43,
+                C50, C51, C52, C53,
+                A0, A1, A2, A3, A4, A5, 
+		B0, B1;
+    float zero = 0.0, one = 1.0, *Bptr, Ctmp[MR * NR], Atmp[MR * 4];
+
+    if (kc == 0)
+        return;
+
+    C00 = vmovq_n_f32(0); C01 = vmovq_n_f32(0); C02 = vmovq_n_f32(0); C03 = vmovq_n_f32(0);
+    C10 = vmovq_n_f32(0); C11 = vmovq_n_f32(0); C12 = vmovq_n_f32(0); C13 = vmovq_n_f32(0);
+    C20 = vmovq_n_f32(0); C21 = vmovq_n_f32(0); C22 = vmovq_n_f32(0); C23 = vmovq_n_f32(0);
+    C30 = vmovq_n_f32(0); C31 = vmovq_n_f32(0); C32 = vmovq_n_f32(0); C33 = vmovq_n_f32(0);
+    C40 = vmovq_n_f32(0); C41 = vmovq_n_f32(0); C42 = vmovq_n_f32(0); C43 = vmovq_n_f32(0);
+    C50 = vmovq_n_f32(0); C51 = vmovq_n_f32(0); C52 = vmovq_n_f32(0); C53 = vmovq_n_f32(0);
+
+    Bptr = &Br[0];
+    Bnr = NR;
+    for (i = 0; i < MR; i++)
+        for (j = 0; j < ldAt; j++)
+            Atrow(i, j) = 0.0;
+
+    // Iterate from 1 to kc
+    if (alpha != zero) {
+        for (k = 0; k < kc - 3; k += 4) {
+
+            // Load columns/rows of A/B for current iteration
+            for (i = 0; i < mr; i++) {
+                Atrow(i, 0) = Arow(i, k);
+                Atrow(i, 1) = Arow(i, k + 1);
+                Atrow(i, 2) = Arow(i, k + 2);
+                Atrow(i, 3) = Arow(i, k + 3);
+            }
+
+            COMPUTE_KERNEL_6x16_UNROLL_4  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+
+            baseB = baseB + 4 * Bnr;
+        }
+
+        if (k == kc - 1) {
+            // printf("Outside iteration k %d\n", k);
+            for (i = 0; i < MR; i++)
+                for (j = 0; j < ldAt; j++)
+                    Atrow(i, j) = 0.0;
+            for (i = 0; i < mr; i++)
+                Atrow(i, 0) = Arow(i, k);
+
+            COMPUTE_KERNEL_6x16  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+        } else if (k == kc - 2) {
+            // printf("Outside iteration k %d %d\n", k, k+1);
+            for (i = 0; i < MR; i++)
+                for (j = 0; j < ldAt; j++)
+                    Atrow(i, j) = 0.0;
+            for (i = 0; i < mr; i++) {
+                Atrow(i, 0) = Arow(i, k);
+                Atrow(i, 1) = Arow(i, k + 1);
+            }
+
+            COMPUTE_KERNEL_6x16_UNROLL_2  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+        } else if (k == kc - 3) {
+            // printf("Outside iteration k %d %d\n", k, k+1);
+            for (i = 0; i < MR; i++)
+                for (j = 0; j < ldAt; j++)
+                    Atrow(i, j) = 0.0;
+            for (i = 0; i < mr; i++) {
+                Atrow(i, 0) = Arow(i, k);
+                Atrow(i, 1) = Arow(i, k + 1);
+                Atrow(i, 2) = Arow(i, k + 2);
+            }
+
+            COMPUTE_KERNEL_6x16_UNROLL_3  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+        }
+
+        if (alpha == -one) {
+            C00 = -C00; C01 = -C01; C02 = -C02; C03 = -C03;
+            C10 = -C10; C11 = -C11; C12 = -C12; C13 = -C13;
+            C20 = -C20; C21 = -C21; C22 = -C22; C23 = -C23;
+            C30 = -C30; C31 = -C31; C32 = -C32; C33 = -C33;
+            C40 = -C40; C41 = -C41; C42 = -C42; C43 = -C43;
+            C50 = -C50; C51 = -C51; C52 = -C52; C53 = -C53;
+        } else if (alpha != one) {
+            C00 = alpha * C00; C01 = alpha * C01; C02 = alpha * C02; C03 = alpha * C03;
+            C10 = alpha * C10; C11 = alpha * C11; C12 = alpha * C12; C13 = alpha * C13;
+            C20 = alpha * C20; C21 = alpha * C21; C22 = alpha * C22; C23 = alpha * C23;
+            C30 = alpha * C30; C31 = alpha * C31; C32 = alpha * C32; C33 = alpha * C33;
+            C40 = alpha * C40; C41 = alpha * C41; C42 = alpha * C42; C43 = alpha * C43;
+            C50 = alpha * C50; C51 = alpha * C51; C52 = alpha * C52; C53 = alpha * C53;
+        }
+    }
+
+    if ((mr < MR) || (nr < NR)) {
+
+        vst1q_f32(&Ctrow(0, 0), C00); vst1q_f32(&Ctrow(0, 4), C01); vst1q_f32(&Ctrow(0, 8), C02); vst1q_f32(&Ctrow(0, 12), C03);
+        vst1q_f32(&Ctrow(1, 0), C10); vst1q_f32(&Ctrow(1, 4), C11); vst1q_f32(&Ctrow(1, 8), C12); vst1q_f32(&Ctrow(1, 12), C13);
+        vst1q_f32(&Ctrow(2, 0), C20); vst1q_f32(&Ctrow(2, 4), C21); vst1q_f32(&Ctrow(2, 8), C22); vst1q_f32(&Ctrow(2, 12), C23);
+        vst1q_f32(&Ctrow(3, 0), C30); vst1q_f32(&Ctrow(3, 4), C31); vst1q_f32(&Ctrow(3, 8), C32); vst1q_f32(&Ctrow(3, 12), C33);
+        vst1q_f32(&Ctrow(4, 0), C40); vst1q_f32(&Ctrow(4, 4), C41); vst1q_f32(&Ctrow(4, 8), C42); vst1q_f32(&Ctrow(4, 12), C43);
+        vst1q_f32(&Ctrow(5, 0), C50); vst1q_f32(&Ctrow(5, 4), C51); vst1q_f32(&Ctrow(5, 8), C52); vst1q_f32(&Ctrow(5, 12), C53);
+
+        if (beta != zero) {
+            for (j = 0; j < nr; j++)
+                for (i = 0; i < mr; i++)
+                    Crow(i, j) = beta * Crow(i, j) + Ctrow(i, j);
+        } else {
+            for (j = 0; j < nr; j++)
+                for (i = 0; i < mr; i++)
+                    Crow(i, j) = Ctrow(i, j);
+        }
+    } else if ((mr == MR) && (nr == NR)) {
+        if (beta != zero) {
+            A0 = vld1q_f32(&Crow(0, 0));
+            A1 = vld1q_f32(&Crow(0, 4));
+            A2 = vld1q_f32(&Crow(0, 8));
+            A3 = vld1q_f32(&Crow(0, 12));
+            C00 = beta * A0 + C00;
+            C01 = beta * A1 + C01;
+            C02 = beta * A2 + C02;
+            C03 = beta * A3 + C03;
+
+            A0 = vld1q_f32(&Crow(1, 0));
+            A1 = vld1q_f32(&Crow(1, 4));
+            A2 = vld1q_f32(&Crow(1, 8));
+            A3 = vld1q_f32(&Crow(1, 12));
+            C10 = beta * A0 + C10;
+            C11 = beta * A1 + C11;
+            C12 = beta * A2 + C12;
+            C13 = beta * A3 + C13;
+
+            A0 = vld1q_f32(&Crow(2, 0));
+            A1 = vld1q_f32(&Crow(2, 4));
+            A2 = vld1q_f32(&Crow(2, 8));
+            A3 = vld1q_f32(&Crow(2, 12));
+            C20 = beta * A0 + C20;
+            C21 = beta * A1 + C21;
+            C22 = beta * A2 + C22;
+            C23 = beta * A3 + C23;
+
+            A0 = vld1q_f32(&Crow(3, 0));
+            A1 = vld1q_f32(&Crow(3, 4));
+            A2 = vld1q_f32(&Crow(3, 8));
+            A3 = vld1q_f32(&Crow(3, 12));
+            C30 = beta * A0 + C30;
+            C31 = beta * A1 + C31;
+            C32 = beta * A2 + C32;
+            C33 = beta * A3 + C33;
+
+            A0 = vld1q_f32(&Crow(4, 0));
+            A1 = vld1q_f32(&Crow(4, 4));
+            A2 = vld1q_f32(&Crow(4, 8));
+            A3 = vld1q_f32(&Crow(4, 12));
+            C40 = beta * A0 + C40;
+            C41 = beta * A1 + C41;
+            C42 = beta * A2 + C42;
+            C43 = beta * A3 + C43;
+
+            A0 = vld1q_f32(&Crow(5, 0));
+            A1 = vld1q_f32(&Crow(5, 4));
+            A2 = vld1q_f32(&Crow(5, 8));
+            A3 = vld1q_f32(&Crow(5, 12));
+            C50 = beta * A0 + C50;
+            C51 = beta * A1 + C51;
+            C52 = beta * A2 + C52;
+            C53 = beta * A3 + C53;
+        }
+
+        vst1q_f32(&Crow(0, 0), C00); vst1q_f32(&Crow(0, 4), C01); vst1q_f32(&Crow(0, 8), C02); vst1q_f32(&Crow(0, 12), C03);
+        vst1q_f32(&Crow(1, 0), C10); vst1q_f32(&Crow(1, 4), C11); vst1q_f32(&Crow(1, 8), C12); vst1q_f32(&Crow(1, 12), C13);
+        vst1q_f32(&Crow(2, 0), C20); vst1q_f32(&Crow(2, 4), C21); vst1q_f32(&Crow(2, 8), C22); vst1q_f32(&Crow(2, 12), C23);
+        vst1q_f32(&Crow(3, 0), C30); vst1q_f32(&Crow(3, 4), C31); vst1q_f32(&Crow(3, 8), C32); vst1q_f32(&Crow(3, 12), C33);
+        vst1q_f32(&Crow(4, 0), C40); vst1q_f32(&Crow(4, 4), C41); vst1q_f32(&Crow(4, 8), C42); vst1q_f32(&Crow(4, 12), C43);
+        vst1q_f32(&Crow(5, 0), C50); vst1q_f32(&Crow(5, 4), C51); vst1q_f32(&Crow(5, 8), C52); vst1q_f32(&Crow(5, 12), C53);
+    } else {
+        printf("Error: Incorrect use of 7x12 micro-kernel with %d x %d block\n", mr, nr);
+        exit(-1);
+    }
+}
+
+void gemm_microkernel_Cresident_neon_6x16_fixed_nopackA_unroll_4_fp32(int mr, int nr, int kc, float alpha,
+                                                                      const float *Ar, int ldA,
+                                                                      const float *Br,
+                                                                      float beta,
+                                                                      float *C, int ldC) {
+/*
+  BLIS GEMM microkernel, computes the product Cr := Cr + Ar * Br
+  Specific: only for MRxNR = 6x16, with kc<=12
+*/
+    SET_MR_NR(6, 16);
+
+    int i, j, k, baseB = 0, ldCt = NR, Amr, Bnr, ldAt = 4, ldBt = NR;
+    float32x4_t C00, C01, C02, C03,
+                C10, C11, C12, C13,
+                C20, C21, C22, C23,
+                C30, C31, C32, C33,
+                C40, C41, C42, C43,
+                C50, C51, C52, C53,
+                A0, A1, A2, A3, A4, A5, 
+		B0, B1;
+    float zero = 0.0, one = 1.0, *Bptr, Ctmp[MR * NR], Atmp[MR * 4];
+
+    if (kc == 0)
+        return;
+
+    C00 = vld1q_f32(&Crow(0, 0)); C01 = vld1q_f32(&Crow(0, 4)); C02 = vld1q_f32(&Crow(0, 8)); C03 = vld1q_f32(&Crow(0, 12));
+    C10 = vld1q_f32(&Crow(1, 0)); C11 = vld1q_f32(&Crow(1, 4)); C12 = vld1q_f32(&Crow(1, 8)); C13 = vld1q_f32(&Crow(1, 12));
+    C20 = vld1q_f32(&Crow(2, 0)); C21 = vld1q_f32(&Crow(2, 4)); C22 = vld1q_f32(&Crow(2, 8)); C23 = vld1q_f32(&Crow(2, 12));
+    C30 = vld1q_f32(&Crow(3, 0)); C31 = vld1q_f32(&Crow(3, 4)); C32 = vld1q_f32(&Crow(3, 8)); C33 = vld1q_f32(&Crow(3, 12));
+    C40 = vld1q_f32(&Crow(4, 0)); C41 = vld1q_f32(&Crow(4, 4)); C42 = vld1q_f32(&Crow(4, 8)); C43 = vld1q_f32(&Crow(4, 12));
+    C50 = vld1q_f32(&Crow(5, 0)); C51 = vld1q_f32(&Crow(5, 4)); C52 = vld1q_f32(&Crow(5, 8)); C53 = vld1q_f32(&Crow(5, 12));
+
+    Bptr = &Br[0];
+    Bnr = NR;
+    for (i = 0; i < MR; i++)
+        for (j = 0; j < ldAt; j++)
+            Atrow(i, j) = 0.0;
+
+    // Iterate from 1 to kc
+    for (k = 0; k < kc - 3; k += 4) {
+
+        A0 = vld1q_f32(&Arow(0, k)); \
+        A1 = vld1q_f32(&Arow(1, k)); \
+        A2 = vld1q_f32(&Arow(2, k)); \
+        A3 = vld1q_f32(&Arow(3, k)); \
+        A4 = vld1q_f32(&Arow(4, k)); \
+        A5 = vld1q_f32(&Arow(5, k)); \
+
+\
+        B0 = vld1q_f32(&Bptr[baseB]);   \
+        B1 = vld1q_f32(&Bptr[baseB+4]); \
+        C00 = vfmaq_laneq_f32(C00, B0, A0, 0); C01 = vfmaq_laneq_f32(C01, B1, A0, 0); \
+        C10 = vfmaq_laneq_f32(C10, B0, A1, 0); C11 = vfmaq_laneq_f32(C11, B1, A1, 0); \
+        C20 = vfmaq_laneq_f32(C20, B0, A2, 0); C21 = vfmaq_laneq_f32(C21, B1, A2, 0); \
+        C30 = vfmaq_laneq_f32(C30, B0, A3, 0); C31 = vfmaq_laneq_f32(C31, B1, A3, 0); \
+        C40 = vfmaq_laneq_f32(C40, B0, A4, 0); C41 = vfmaq_laneq_f32(C41, B1, A4, 0); \
+        C50 = vfmaq_laneq_f32(C50, B0, A5, 0); C51 = vfmaq_laneq_f32(C51, B1, A5, 0); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+8]); \
+        B1 = vld1q_f32(&Bptr[baseB+12]); \
+        C02 = vfmaq_laneq_f32(C02, B0, A0, 0); C03 = vfmaq_laneq_f32(C03, B1, A0, 0); \
+        C12 = vfmaq_laneq_f32(C12, B0, A1, 0); C13 = vfmaq_laneq_f32(C13, B1, A1, 0); \
+        C22 = vfmaq_laneq_f32(C22, B0, A2, 0); C23 = vfmaq_laneq_f32(C23, B1, A2, 0); \
+        C32 = vfmaq_laneq_f32(C32, B0, A3, 0); C33 = vfmaq_laneq_f32(C33, B1, A3, 0); \
+        C42 = vfmaq_laneq_f32(C42, B0, A4, 0); C43 = vfmaq_laneq_f32(C43, B1, A4, 0); \
+        C52 = vfmaq_laneq_f32(C52, B0, A5, 0); C53 = vfmaq_laneq_f32(C53, B1, A5, 0); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+16]);   \
+        B1 = vld1q_f32(&Bptr[baseB+20]); \
+        C00 = vfmaq_laneq_f32(C00, B0, A0, 1); C01 = vfmaq_laneq_f32(C01, B1, A0, 1); \
+        C10 = vfmaq_laneq_f32(C10, B0, A1, 1); C11 = vfmaq_laneq_f32(C11, B1, A1, 1); \
+        C20 = vfmaq_laneq_f32(C20, B0, A2, 1); C21 = vfmaq_laneq_f32(C21, B1, A2, 1); \
+        C30 = vfmaq_laneq_f32(C30, B0, A3, 1); C31 = vfmaq_laneq_f32(C31, B1, A3, 1); \
+        C40 = vfmaq_laneq_f32(C40, B0, A4, 1); C41 = vfmaq_laneq_f32(C41, B1, A4, 1); \
+        C50 = vfmaq_laneq_f32(C50, B0, A5, 1); C51 = vfmaq_laneq_f32(C51, B1, A5, 1); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+24]); \
+        B1 = vld1q_f32(&Bptr[baseB+28]); \
+        C02 = vfmaq_laneq_f32(C02, B0, A0, 1); C03 = vfmaq_laneq_f32(C03, B1, A0, 1); \
+        C12 = vfmaq_laneq_f32(C12, B0, A1, 1); C13 = vfmaq_laneq_f32(C13, B1, A1, 1); \
+        C22 = vfmaq_laneq_f32(C22, B0, A2, 1); C23 = vfmaq_laneq_f32(C23, B1, A2, 1); \
+        C32 = vfmaq_laneq_f32(C32, B0, A3, 1); C33 = vfmaq_laneq_f32(C33, B1, A3, 1); \
+        C42 = vfmaq_laneq_f32(C42, B0, A4, 1); C43 = vfmaq_laneq_f32(C43, B1, A4, 1); \
+        C52 = vfmaq_laneq_f32(C52, B0, A5, 1); C53 = vfmaq_laneq_f32(C53, B1, A5, 1); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+32]);   \
+        B1 = vld1q_f32(&Bptr[baseB+36]); \
+        C00 = vfmaq_laneq_f32(C00, B0, A0, 2); C01 = vfmaq_laneq_f32(C01, B1, A0, 2); \
+        C10 = vfmaq_laneq_f32(C10, B0, A1, 2); C11 = vfmaq_laneq_f32(C11, B1, A1, 2); \
+        C20 = vfmaq_laneq_f32(C20, B0, A2, 2); C21 = vfmaq_laneq_f32(C21, B1, A2, 2); \
+        C30 = vfmaq_laneq_f32(C30, B0, A3, 2); C31 = vfmaq_laneq_f32(C31, B1, A3, 2); \
+        C40 = vfmaq_laneq_f32(C40, B0, A4, 2); C41 = vfmaq_laneq_f32(C41, B1, A4, 2); \
+        C50 = vfmaq_laneq_f32(C50, B0, A5, 2); C51 = vfmaq_laneq_f32(C51, B1, A5, 2); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+40]); \
+        B1 = vld1q_f32(&Bptr[baseB+44]); \
+        C02 = vfmaq_laneq_f32(C02, B0, A0, 2); C03 = vfmaq_laneq_f32(C03, B1, A0, 2); \
+        C12 = vfmaq_laneq_f32(C12, B0, A1, 2); C13 = vfmaq_laneq_f32(C13, B1, A1, 2); \
+        C22 = vfmaq_laneq_f32(C22, B0, A2, 2); C23 = vfmaq_laneq_f32(C23, B1, A2, 2); \
+        C32 = vfmaq_laneq_f32(C32, B0, A3, 2); C33 = vfmaq_laneq_f32(C33, B1, A3, 2); \
+        C42 = vfmaq_laneq_f32(C42, B0, A4, 2); C43 = vfmaq_laneq_f32(C43, B1, A4, 2); \
+        C52 = vfmaq_laneq_f32(C52, B0, A5, 2); C53 = vfmaq_laneq_f32(C53, B1, A5, 2); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+48]);   \
+        B1 = vld1q_f32(&Bptr[baseB+52]); \
+        C00 = vfmaq_laneq_f32(C00, B0, A0, 3); C01 = vfmaq_laneq_f32(C01, B1, A0, 3); \
+        C10 = vfmaq_laneq_f32(C10, B0, A1, 3); C11 = vfmaq_laneq_f32(C11, B1, A1, 3); \
+        C20 = vfmaq_laneq_f32(C20, B0, A2, 3); C21 = vfmaq_laneq_f32(C21, B1, A2, 3); \
+        C30 = vfmaq_laneq_f32(C30, B0, A3, 3); C31 = vfmaq_laneq_f32(C31, B1, A3, 3); \
+        C40 = vfmaq_laneq_f32(C40, B0, A4, 3); C41 = vfmaq_laneq_f32(C41, B1, A4, 3); \
+        C50 = vfmaq_laneq_f32(C50, B0, A5, 3); C51 = vfmaq_laneq_f32(C51, B1, A5, 3); \
+\
+        B0 = vld1q_f32(&Bptr[baseB+56]); \
+        B1 = vld1q_f32(&Bptr[baseB+60]); \
+        C02 = vfmaq_laneq_f32(C02, B0, A0, 3); C03 = vfmaq_laneq_f32(C03, B1, A0, 3); \
+        C12 = vfmaq_laneq_f32(C12, B0, A1, 3); C13 = vfmaq_laneq_f32(C13, B1, A1, 3); \
+        C22 = vfmaq_laneq_f32(C22, B0, A2, 3); C23 = vfmaq_laneq_f32(C23, B1, A2, 3); \
+        C32 = vfmaq_laneq_f32(C32, B0, A3, 3); C33 = vfmaq_laneq_f32(C33, B1, A3, 3); \
+        C42 = vfmaq_laneq_f32(C42, B0, A4, 3); C43 = vfmaq_laneq_f32(C43, B1, A4, 3); \
+        C52 = vfmaq_laneq_f32(C52, B0, A5, 3); C53 = vfmaq_laneq_f32(C53, B1, A5, 3); \
+
+        baseB = baseB + 4 * Bnr;
+    }
+
+    if (k == kc - 1) {
+        // printf("Outside iteration k %d\n", k);
+        for (i = 0; i < MR; i++)
+            for (j = 0; j < ldAt; j++)
+                Atrow(i, j) = 0.0;
+        for (i = 0; i < mr; i++)
+            Atrow(i, 0) = Arow(i, k);
+
+        COMPUTE_KERNEL_6x16  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+    } else if (k == kc - 2) {
+        // printf("Outside iteration k %d %d\n", k, k+1);
+        for (i = 0; i < MR; i++)
+            for (j = 0; j < ldAt; j++)
+                Atrow(i, j) = 0.0;
+        for (i = 0; i < mr; i++) {
+            Atrow(i, 0) = Arow(i, k);
+            Atrow(i, 1) = Arow(i, k + 1);
+        }
+
+        COMPUTE_KERNEL_6x16_UNROLL_2  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+    } else if (k == kc - 3) {
+        // printf("Outside iteration k %d %d\n", k, k+1);
+        for (i = 0; i < MR; i++)
+            for (j = 0; j < ldAt; j++)
+                Atrow(i, j) = 0.0;
+        for (i = 0; i < mr; i++) {
+            Atrow(i, 0) = Arow(i, k);
+            Atrow(i, 1) = Arow(i, k + 1);
+            Atrow(i, 2) = Arow(i, k + 2);
+        }
+
+        COMPUTE_KERNEL_6x16_UNROLL_3  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+    }
+
+    vst1q_f32(&Crow(0, 0), C00); vst1q_f32(&Crow(0, 4), C01); vst1q_f32(&Crow(0, 8), C02); vst1q_f32(&Crow(0, 12), C03);
+    vst1q_f32(&Crow(1, 0), C10); vst1q_f32(&Crow(1, 4), C11); vst1q_f32(&Crow(1, 8), C12); vst1q_f32(&Crow(1, 12), C13);
+    vst1q_f32(&Crow(2, 0), C20); vst1q_f32(&Crow(2, 4), C21); vst1q_f32(&Crow(2, 8), C22); vst1q_f32(&Crow(2, 12), C23);
+    vst1q_f32(&Crow(3, 0), C30); vst1q_f32(&Crow(3, 4), C31); vst1q_f32(&Crow(3, 8), C32); vst1q_f32(&Crow(3, 12), C33);
+    vst1q_f32(&Crow(4, 0), C40); vst1q_f32(&Crow(4, 4), C41); vst1q_f32(&Crow(4, 8), C42); vst1q_f32(&Crow(4, 12), C43);
+    vst1q_f32(&Crow(5, 0), C50); vst1q_f32(&Crow(5, 4), C51); vst1q_f32(&Crow(5, 8), C52); vst1q_f32(&Crow(5, 12), C53);
+}
+
+void gemm_microkernel_Cresident_neon_6x16_nopackA_fp32(int mr, int nr, int kc, float alpha,
+                                                       const float *Ar, int ldA,
+                                                       const float *Br,
+                                                       float beta,
+                                                       float *C, int ldC) {
+/*
+  BLIS GEMM microkernel, computes the product Cr := Cr + Ar * Br
+  Specific: only for MRxNR = 6x16, with kc<=12
+*/
+    SET_MR_NR(6, 16);
+
+    int i, j, k, baseB = 0, ldCt = NR, Amr, Bnr, ldAt = 4, ldBt = NR;
+    float32x4_t C00, C01, C02, C03,
+                C10, C11, C12, C13,
+                C20, C21, C22, C23,
+                C30, C31, C32, C33,
+                C40, C41, C42, C43,
+                C50, C51, C52, C53,
+                A0, A1, A2, A3, A4, A5, 
+		B0, B1;
+    float zero = 0.0, one = 1.0, *Bptr, Ctmp[MR * NR], Atmp[MR * 4];
+
+    if (kc == 0)
+        return;
+
+    C00 = vmovq_n_f32(0); C01 = vmovq_n_f32(0); C02 = vmovq_n_f32(0); C03 = vmovq_n_f32(0);
+    C10 = vmovq_n_f32(0); C11 = vmovq_n_f32(0); C12 = vmovq_n_f32(0); C13 = vmovq_n_f32(0);
+    C20 = vmovq_n_f32(0); C21 = vmovq_n_f32(0); C22 = vmovq_n_f32(0); C23 = vmovq_n_f32(0);
+    C30 = vmovq_n_f32(0); C31 = vmovq_n_f32(0); C32 = vmovq_n_f32(0); C33 = vmovq_n_f32(0);
+    C40 = vmovq_n_f32(0); C41 = vmovq_n_f32(0); C42 = vmovq_n_f32(0); C43 = vmovq_n_f32(0);
+    C50 = vmovq_n_f32(0); C51 = vmovq_n_f32(0); C52 = vmovq_n_f32(0); C53 = vmovq_n_f32(0);
+
+    Bptr = &Br[0];
+    Bnr = NR;
+    for (i = 0; i < MR; i++)
+        for (j = 0; j < ldAt; j++)
+            Atrow(i, j) = 0.0;
+
+    // Iterate from 1 to kc
+    if (alpha != zero) {
+        for (k = 0; k < kc; k++) {
+
+            // Load columns/rows of A/B for current iteration
+            for (i = 0; i < mr; i++) {
+                Atrow(i, 0) = Arow(i, k);
+                Atrow(i, 1) = Arow(i, k + 1);
+                Atrow(i, 2) = Arow(i, k + 2);
+                Atrow(i, 3) = Arow(i, k + 3);
+            }
+
+            COMPUTE_KERNEL_6x16  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+
+            baseB = baseB + Bnr;
+        }
+
+        if (alpha == -one) {
+            C00 = -C00; C01 = -C01; C02 = -C02; C03 = -C03;
+            C10 = -C10; C11 = -C11; C12 = -C12; C13 = -C13;
+            C20 = -C20; C21 = -C21; C22 = -C22; C23 = -C23;
+            C30 = -C30; C31 = -C31; C32 = -C32; C33 = -C33;
+            C40 = -C40; C41 = -C41; C42 = -C42; C43 = -C43;
+            C50 = -C50; C51 = -C51; C52 = -C52; C53 = -C53;
+        } else if (alpha != one) {
+            C00 = alpha * C00; C01 = alpha * C01; C02 = alpha * C02; C03 = alpha * C03;
+            C10 = alpha * C10; C11 = alpha * C11; C12 = alpha * C12; C13 = alpha * C13;
+            C20 = alpha * C20; C21 = alpha * C21; C22 = alpha * C22; C23 = alpha * C23;
+            C30 = alpha * C30; C31 = alpha * C31; C32 = alpha * C32; C33 = alpha * C33;
+            C40 = alpha * C40; C41 = alpha * C41; C42 = alpha * C42; C43 = alpha * C43;
+            C50 = alpha * C50; C51 = alpha * C51; C52 = alpha * C52; C53 = alpha * C53;
+        }
+    }
+
+    if ((mr < MR) || (nr < NR)) {
+
+        vst1q_f32(&Ctrow(0, 0), C00); vst1q_f32(&Ctrow(0, 4), C01); vst1q_f32(&Ctrow(0, 8), C02); vst1q_f32(&Ctrow(0, 12), C03);
+        vst1q_f32(&Ctrow(1, 0), C10); vst1q_f32(&Ctrow(1, 4), C11); vst1q_f32(&Ctrow(1, 8), C12); vst1q_f32(&Ctrow(1, 12), C13);
+        vst1q_f32(&Ctrow(2, 0), C20); vst1q_f32(&Ctrow(2, 4), C21); vst1q_f32(&Ctrow(2, 8), C22); vst1q_f32(&Ctrow(2, 12), C23);
+        vst1q_f32(&Ctrow(3, 0), C30); vst1q_f32(&Ctrow(3, 4), C31); vst1q_f32(&Ctrow(3, 8), C32); vst1q_f32(&Ctrow(3, 12), C33);
+        vst1q_f32(&Ctrow(4, 0), C40); vst1q_f32(&Ctrow(4, 4), C41); vst1q_f32(&Ctrow(4, 8), C42); vst1q_f32(&Ctrow(4, 12), C43);
+        vst1q_f32(&Ctrow(5, 0), C50); vst1q_f32(&Ctrow(5, 4), C51); vst1q_f32(&Ctrow(5, 8), C52); vst1q_f32(&Ctrow(5, 12), C53);
+
+        if (beta != zero) {
+            for (j = 0; j < nr; j++)
+                for (i = 0; i < mr; i++)
+                    Crow(i, j) = beta * Crow(i, j) + Ctrow(i, j);
+        } else {
+            for (j = 0; j < nr; j++)
+                for (i = 0; i < mr; i++)
+                    Crow(i, j) = Ctrow(i, j);
+        }
+    } else if ((mr == MR) && (nr == NR)) {
+        if (beta != zero) {
+            A0 = vld1q_f32(&Crow(0, 0));
+            A1 = vld1q_f32(&Crow(0, 4));
+            A2 = vld1q_f32(&Crow(0, 8));
+            A3 = vld1q_f32(&Crow(0, 12));
+            C00 = beta * A0 + C00;
+            C01 = beta * A1 + C01;
+            C02 = beta * A2 + C02;
+            C03 = beta * A3 + C03;
+
+            A0 = vld1q_f32(&Crow(1, 0));
+            A1 = vld1q_f32(&Crow(1, 4));
+            A2 = vld1q_f32(&Crow(1, 8));
+            A3 = vld1q_f32(&Crow(1, 12));
+            C10 = beta * A0 + C10;
+            C11 = beta * A1 + C11;
+            C12 = beta * A2 + C12;
+            C13 = beta * A3 + C13;
+
+            A0 = vld1q_f32(&Crow(2, 0));
+            A1 = vld1q_f32(&Crow(2, 4));
+            A2 = vld1q_f32(&Crow(2, 8));
+            A3 = vld1q_f32(&Crow(2, 12));
+            C20 = beta * A0 + C20;
+            C21 = beta * A1 + C21;
+            C22 = beta * A2 + C22;
+            C23 = beta * A3 + C23;
+
+            A0 = vld1q_f32(&Crow(3, 0));
+            A1 = vld1q_f32(&Crow(3, 4));
+            A2 = vld1q_f32(&Crow(3, 8));
+            A3 = vld1q_f32(&Crow(3, 12));
+            C30 = beta * A0 + C30;
+            C31 = beta * A1 + C31;
+            C32 = beta * A2 + C32;
+            C33 = beta * A3 + C33;
+
+            A0 = vld1q_f32(&Crow(4, 0));
+            A1 = vld1q_f32(&Crow(4, 4));
+            A2 = vld1q_f32(&Crow(4, 8));
+            A3 = vld1q_f32(&Crow(4, 12));
+            C40 = beta * A0 + C40;
+            C41 = beta * A1 + C41;
+            C42 = beta * A2 + C42;
+            C43 = beta * A3 + C43;
+
+            A0 = vld1q_f32(&Crow(5, 0));
+            A1 = vld1q_f32(&Crow(5, 4));
+            A2 = vld1q_f32(&Crow(5, 8));
+            A3 = vld1q_f32(&Crow(5, 12));
+            C50 = beta * A0 + C50;
+            C51 = beta * A1 + C51;
+            C52 = beta * A2 + C52;
+            C53 = beta * A3 + C53;
+        }
+
+        vst1q_f32(&Crow(0, 0), C00); vst1q_f32(&Crow(0, 4), C01); vst1q_f32(&Crow(0, 8), C02); vst1q_f32(&Crow(0, 12), C03);
+        vst1q_f32(&Crow(1, 0), C10); vst1q_f32(&Crow(1, 4), C11); vst1q_f32(&Crow(1, 8), C12); vst1q_f32(&Crow(1, 12), C13);
+        vst1q_f32(&Crow(2, 0), C20); vst1q_f32(&Crow(2, 4), C21); vst1q_f32(&Crow(2, 8), C22); vst1q_f32(&Crow(2, 12), C23);
+        vst1q_f32(&Crow(3, 0), C30); vst1q_f32(&Crow(3, 4), C31); vst1q_f32(&Crow(3, 8), C32); vst1q_f32(&Crow(3, 12), C33);
+        vst1q_f32(&Crow(4, 0), C40); vst1q_f32(&Crow(4, 4), C41); vst1q_f32(&Crow(4, 8), C42); vst1q_f32(&Crow(4, 12), C43);
+        vst1q_f32(&Crow(5, 0), C50); vst1q_f32(&Crow(5, 4), C51); vst1q_f32(&Crow(5, 8), C52); vst1q_f32(&Crow(5, 12), C53);
+    } else {
+        printf("Error: Incorrect use of 7x12 micro-kernel with %d x %d block\n", mr, nr);
+        exit(-1);
+    }
+}
+
+void gemm_microkernel_Cresident_neon_6x16_nopackA_unroll_2_fp32(int mr, int nr, int kc, float alpha,
+                                                                const float *Ar, int ldA,
+                                                                const float *Br,
+                                                                float beta,
+                                                                float *C, int ldC) {
+/*
+  BLIS GEMM microkernel, computes the product Cr := Cr + Ar * Br
+  Specific: only for MRxNR = 6x16, with kc<=12
+*/
+    SET_MR_NR(6, 16);
+
+    int i, j, k, baseB = 0, ldCt = NR, Amr, Bnr, ldAt = 4, ldBt = NR;
+    float32x4_t C00, C01, C02, C03,
+                C10, C11, C12, C13,
+                C20, C21, C22, C23,
+                C30, C31, C32, C33,
+                C40, C41, C42, C43,
+                C50, C51, C52, C53,
+                A0, A1, A2, A3, A4, A5, 
+		B0, B1;
+    float zero = 0.0, one = 1.0, *Bptr, Ctmp[MR * NR], Atmp[MR * 4];
+
+    if (kc == 0)
+        return;
+
+    C00 = vmovq_n_f32(0); C01 = vmovq_n_f32(0); C02 = vmovq_n_f32(0); C03 = vmovq_n_f32(0);
+    C10 = vmovq_n_f32(0); C11 = vmovq_n_f32(0); C12 = vmovq_n_f32(0); C13 = vmovq_n_f32(0);
+    C20 = vmovq_n_f32(0); C21 = vmovq_n_f32(0); C22 = vmovq_n_f32(0); C23 = vmovq_n_f32(0);
+    C30 = vmovq_n_f32(0); C31 = vmovq_n_f32(0); C32 = vmovq_n_f32(0); C33 = vmovq_n_f32(0);
+    C40 = vmovq_n_f32(0); C41 = vmovq_n_f32(0); C42 = vmovq_n_f32(0); C43 = vmovq_n_f32(0);
+    C50 = vmovq_n_f32(0); C51 = vmovq_n_f32(0); C52 = vmovq_n_f32(0); C53 = vmovq_n_f32(0);
+
+    Bptr = &Br[0];
+    Bnr = NR;
+    for (i = 0; i < MR; i++)
+        for (j = 0; j < ldAt; j++)
+            Atrow(i, j) = 0.0;
+
+    // Iterate from 1 to kc
+    if (alpha != zero) {
+        for (k = 0; k < kc - 1; k += 2) {
+
+            // Load columns/rows of A/B for current iteration
+            for (i = 0; i < mr; i++) {
+                Atrow(i, 0) = Arow(i, k);
+                Atrow(i, 1) = Arow(i, k + 1);
+                Atrow(i, 2) = Arow(i, k + 2);
+                Atrow(i, 3) = Arow(i, k + 3);
+            }
+
+            COMPUTE_KERNEL_6x16_UNROLL_2  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+
+            baseB = baseB + 2 * Bnr;
+        }
+
+        if (k == kc - 1) {
+            // printf("Outside iteration k %d\n", k);
+            for (i = 0; i < MR; i++)
+                for (j = 0; j < ldAt; j++)
+                    Atrow(i, j) = 0.0;
+            for (i = 0; i < mr; i++)
+                Atrow(i, 0) = Arow(i, k);
+
+            COMPUTE_KERNEL_6x16  // Code for single iteration 6x16 in file compute_kernel_6x16.h
+        }
+
+        if (alpha == -one) {
+            C00 = -C00; C01 = -C01; C02 = -C02; C03 = -C03;
+            C10 = -C10; C11 = -C11; C12 = -C12; C13 = -C13;
+            C20 = -C20; C21 = -C21; C22 = -C22; C23 = -C23;
+            C30 = -C30; C31 = -C31; C32 = -C32; C33 = -C33;
+            C40 = -C40; C41 = -C41; C42 = -C42; C43 = -C43;
+            C50 = -C50; C51 = -C51; C52 = -C52; C53 = -C53;
+        } else if (alpha != one) {
+            C00 = alpha * C00; C01 = alpha * C01; C02 = alpha * C02; C03 = alpha * C03;
+            C10 = alpha * C10; C11 = alpha * C11; C12 = alpha * C12; C13 = alpha * C13;
+            C20 = alpha * C20; C21 = alpha * C21; C22 = alpha * C22; C23 = alpha * C23;
+            C30 = alpha * C30; C31 = alpha * C31; C32 = alpha * C32; C33 = alpha * C33;
+            C40 = alpha * C40; C41 = alpha * C41; C42 = alpha * C42; C43 = alpha * C43;
+            C50 = alpha * C50; C51 = alpha * C51; C52 = alpha * C52; C53 = alpha * C53;
+        }
+    }
+
+    if ((mr < MR) || (nr < NR)) {
+
+        vst1q_f32(&Ctrow(0, 0), C00); vst1q_f32(&Ctrow(0, 4), C01); vst1q_f32(&Ctrow(0, 8), C02); vst1q_f32(&Ctrow(0, 12), C03);
+        vst1q_f32(&Ctrow(1, 0), C10); vst1q_f32(&Ctrow(1, 4), C11); vst1q_f32(&Ctrow(1, 8), C12); vst1q_f32(&Ctrow(1, 12), C13);
+        vst1q_f32(&Ctrow(2, 0), C20); vst1q_f32(&Ctrow(2, 4), C21); vst1q_f32(&Ctrow(2, 8), C22); vst1q_f32(&Ctrow(2, 12), C23);
+        vst1q_f32(&Ctrow(3, 0), C30); vst1q_f32(&Ctrow(3, 4), C31); vst1q_f32(&Ctrow(3, 8), C32); vst1q_f32(&Ctrow(3, 12), C33);
+        vst1q_f32(&Ctrow(4, 0), C40); vst1q_f32(&Ctrow(4, 4), C41); vst1q_f32(&Ctrow(4, 8), C42); vst1q_f32(&Ctrow(4, 12), C43);
+        vst1q_f32(&Ctrow(5, 0), C50); vst1q_f32(&Ctrow(5, 4), C51); vst1q_f32(&Ctrow(5, 8), C52); vst1q_f32(&Ctrow(5, 12), C53);
+
+        if (beta != zero) {
+            for (j = 0; j < nr; j++)
+                for (i = 0; i < mr; i++)
+                    Crow(i, j) = beta * Crow(i, j) + Ctrow(i, j);
+        } else {
+            for (j = 0; j < nr; j++)
+                for (i = 0; i < mr; i++)
+                    Crow(i, j) = Ctrow(i, j);
+        }
+    } else if ((mr == MR) && (nr == NR)) {
+        if (beta != zero) {
+            A0 = vld1q_f32(&Crow(0, 0));
+            A1 = vld1q_f32(&Crow(0, 4));
+            A2 = vld1q_f32(&Crow(0, 8));
+            A3 = vld1q_f32(&Crow(0, 12));
+            C00 = beta * A0 + C00;
+            C01 = beta * A1 + C01;
+            C02 = beta * A2 + C02;
+            C03 = beta * A3 + C03;
+
+            A0 = vld1q_f32(&Crow(1, 0));
+            A1 = vld1q_f32(&Crow(1, 4));
+            A2 = vld1q_f32(&Crow(1, 8));
+            A3 = vld1q_f32(&Crow(1, 12));
+            C10 = beta * A0 + C10;
+            C11 = beta * A1 + C11;
+            C12 = beta * A2 + C12;
+            C13 = beta * A3 + C13;
+
+            A0 = vld1q_f32(&Crow(2, 0));
+            A1 = vld1q_f32(&Crow(2, 4));
+            A2 = vld1q_f32(&Crow(2, 8));
+            A3 = vld1q_f32(&Crow(2, 12));
+            C20 = beta * A0 + C20;
+            C21 = beta * A1 + C21;
+            C22 = beta * A2 + C22;
+            C23 = beta * A3 + C23;
+
+            A0 = vld1q_f32(&Crow(3, 0));
+            A1 = vld1q_f32(&Crow(3, 4));
+            A2 = vld1q_f32(&Crow(3, 8));
+            A3 = vld1q_f32(&Crow(3, 12));
+            C30 = beta * A0 + C30;
+            C31 = beta * A1 + C31;
+            C32 = beta * A2 + C32;
+            C33 = beta * A3 + C33;
+
+            A0 = vld1q_f32(&Crow(4, 0));
+            A1 = vld1q_f32(&Crow(4, 4));
+            A2 = vld1q_f32(&Crow(4, 8));
+            A3 = vld1q_f32(&Crow(4, 12));
+            C40 = beta * A0 + C40;
+            C41 = beta * A1 + C41;
+            C42 = beta * A2 + C42;
+            C43 = beta * A3 + C43;
+
+            A0 = vld1q_f32(&Crow(5, 0));
+            A1 = vld1q_f32(&Crow(5, 4));
+            A2 = vld1q_f32(&Crow(5, 8));
+            A3 = vld1q_f32(&Crow(5, 12));
+            C50 = beta * A0 + C50;
+            C51 = beta * A1 + C51;
+            C52 = beta * A2 + C52;
+            C53 = beta * A3 + C53;
+        }
+
+        vst1q_f32(&Crow(0, 0), C00); vst1q_f32(&Crow(0, 4), C01); vst1q_f32(&Crow(0, 8), C02); vst1q_f32(&Crow(0, 12), C03);
+        vst1q_f32(&Crow(1, 0), C10); vst1q_f32(&Crow(1, 4), C11); vst1q_f32(&Crow(1, 8), C12); vst1q_f32(&Crow(1, 12), C13);
+        vst1q_f32(&Crow(2, 0), C20); vst1q_f32(&Crow(2, 4), C21); vst1q_f32(&Crow(2, 8), C22); vst1q_f32(&Crow(2, 12), C23);
+        vst1q_f32(&Crow(3, 0), C30); vst1q_f32(&Crow(3, 4), C31); vst1q_f32(&Crow(3, 8), C32); vst1q_f32(&Crow(3, 12), C33);
+        vst1q_f32(&Crow(4, 0), C40); vst1q_f32(&Crow(4, 4), C41); vst1q_f32(&Crow(4, 8), C42); vst1q_f32(&Crow(4, 12), C43);
+        vst1q_f32(&Crow(5, 0), C50); vst1q_f32(&Crow(5, 4), C51); vst1q_f32(&Crow(5, 8), C52); vst1q_f32(&Crow(5, 12), C53);
+    } else {
+        printf("Error: Incorrect use of 7x12 micro-kernel with %d x %d block\n", mr, nr);
+        exit(-1);
+    }
 }
 

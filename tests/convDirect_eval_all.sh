@@ -17,6 +17,7 @@ ALGORITHMS=(
   "convdirect_block_blis_nhwc_8x12"
   "convdirect_block_blis_nhwc_4x20"
   "convdirect_block_shalom_nhwc_7x12_npa_u4"
+  "convdirect_block_shalom_nhwc_6x16_npa_u4"
   "convdirect_tzemeng_nhwc_7x12_u4"
 )
 

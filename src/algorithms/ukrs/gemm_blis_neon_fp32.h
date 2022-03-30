@@ -23,6 +23,7 @@
 
 #include "compute_kernel_7x12.h"
 #include "compute_kernel_6x12.h"
+#include "compute_kernel_6x16.h"
 #include "compute_kernel_4x20.h"
 
 
@@ -60,14 +61,17 @@ void gemm_microkernel_Cresident_neon_7x12_fixed_unroll_4_fp32(int, int, int, flo
 
 
 // Micro-kernels for SHALOM
-void gemm_microkernel_Cresident_neon_7x12_nopack_unroll_4_fp32(int, int, int, float, const float *, int, const float *,
-                                                               int, float, float *, int);
-
 void gemm_microkernel_Cresident_neon_7x12_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
                                                                 const float *, float, float *, int);
+
+void gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
+                                                                      const float *, float, float *, int);
 
 void gemm_microkernel_Cresident_assembly_7x12_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
                                                                       const float *, float, float *, int);
 
-void gemm_microkernel_Cresident_neon_7x12_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
-                                                                      const float *, float, float *, int);
+void gemm_microkernel_Cresident_neon_6x16_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
+                                                                const float *, float, float *, int);
+
+void gemm_microkernel_Cresident_neon_6x16_fixed_nopackA_unroll_4_fp32(int, int, int, float, const float *, int,
+                                                                const float *, float, float *, int);
