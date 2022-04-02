@@ -83,6 +83,9 @@ fi
 
 export PATH=${PATH}:./tests:../build/tests
 
+LAST_CPU=$(grep processor /proc/cpuinfo | tail -n 1 | cut -f 2 -d ":" | cut -f 2 -d " ")
+
+taskset -c "${LAST_CPU}" \
 convDirect_eval "${ALGORITHM_NAME}" "${CONFIG_PATH}" \
   "${CNN_OR_BATCH}" \
   "${TMIN}" \
