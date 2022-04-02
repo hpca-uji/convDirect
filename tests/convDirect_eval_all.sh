@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# RUN_PATH="$(pwd -P)"
-
 SCRIPT_PATH="$(
   cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit
   pwd -P
@@ -23,8 +21,9 @@ ALGORITHMS=(
 
 for NET in "${SCRIPT_PATH}"/cnn/*; do
   for ALGORITHM in "${ALGORITHMS[@]}"; do
-      # convdirect_eval.sh writes its outputs to ${RUN_DIR}/runs/CNN_-_algorithm.csv
+      # convdirect_eval.sh writes its outputs to ${OUTPUT_PATH}/CNN-Dataset_-_algorithm.csv
       # TMIN=0 TEST=T \
+      TMIN=240 \
       "${SCRIPT_PATH}"/convDirect_eval.sh "${ALGORITHM}" "${NET}"
   done
 done
