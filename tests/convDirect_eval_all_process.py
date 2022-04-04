@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import math
 import sys
 import os
 import glob
@@ -129,8 +129,11 @@ def performance_results():
         cols_present = df_net.columns.tolist()
         df_net = df_net[[c for c in cols_ordered if c in cols_present]]
         # Best(Im2col, ConvGemm)
-        im2col_convgemm_label = "LOWERING" if for_article else "Best(Im2col, ConvGemm)"
-        df_net[im2col_convgemm_label] = df_net[[IM2COL, CONVGEMM]].max(axis=1)
+        im2col_convgemm_cols = [c for c in [IM2COL, CONVGEMM] if c in cols_present]
+        im2col_convgemm_label = None
+        if len(im2col_convgemm_cols) >= 1:
+            im2col_convgemm_label = "LOWERING" if for_article else "Best({})".format(", ".join(im2col_convgemm_cols))
+            df_net[im2col_convgemm_label] = df_net[im2col_convgemm_cols].max(axis=1)
         # Best of Shalom methods
         shalom_cols = [c for c in [SHALOM_7x12, SHALOM_6x16] if c in cols_present]
         shalom_label = None
@@ -188,7 +191,7 @@ def plots_matplotlib():
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
-    def bars(df_, plot_title_, filename_, colors_):
+    def bars(df_, plot_title_, filename_, colors_, pretty_max_, y_locs_, y_labels_):
         print("Generating '{}'...".format(filename_))
         # Labels
         labels = df_["#Layer"].to_list()
@@ -215,28 +218,47 @@ def plots_matplotlib():
         plt.legend(loc="upper left", fontsize=8, ncol=n_methods)
         plt.margins(x=0.005, y=0.2, tight=True)
         plt.grid(True, zorder=0)
+        # Y
         plt.ylabel('GFLOPS')
+        if y_locs_ is not None:
+            plt.yticks(y_locs_, y_labels_)
+        else:
+            plt.ylim(0, pretty_max_)
+        # X
         plt.xlabel("#CNN layer")
         plt.xticks(x, labels, fontsize=8, rotation=60)
         # Save figure
         plt.savefig(filename_)
+        # Get locs and labels from yticks
+        y_locs, y_labels = plt.yticks()
         # Close figure
-        plt.close()
+        plt.close("all")
+        # Return locs and labels
+        return y_locs, y_labels
 
     def split(df_):
+        columns = list(df.columns)
+        columns.pop(columns.index("#Layer"))
+        max_gflops = df[columns].max().max()
+        order_of_magnitude = math.floor(math.log(max_gflops, 10))
+        divisor = 10 ** order_of_magnitude / 2
+        pretty_max = (max_gflops * 1.3) // divisor * divisor
         parts = len(df_.index) // 25 + 1
         if parts == 1:
-            return [(df_, ""), ]
+            return [(df_, "", pretty_max), ]
         else:
-            return [(x, str(i)) for i, x in enumerate(np.array_split(df_, parts), 1)]
+            return [(x, str(i), pretty_max) for i, x in enumerate(np.array_split(df_, parts), 1)]
 
     def draw_bars(net_, df_, prefix_, plots_titles_suffix_, output_dir_, colors_):
-        for df_part, suffix in split(df_):
+        previous_y_locs = None
+        previous_y_labels = None
+        for df_part, suffix, pretty_max in split(df_):
             title_parts = [x for x in (net_, plots_titles_suffix_, suffix) if x != ""]
             plot_title = " ".join(title_parts)
             plot_title_escaped = plot_title.replace(" ", "_").replace("(", "").replace(")", "")
             filename = "{}_{}.pdf".format(prefix_, plot_title_escaped).lower()
-            bars(df_part, plot_title, os.path.join(output_dir_, filename), colors_)
+            previous_y_locs, previous_y_labels = bars(df_part, plot_title, os.path.join(output_dir_, filename), colors_,
+                                                      pretty_max, previous_y_locs, previous_y_labels)
 
     cm = plt.cm.get_cmap('tab10')
     colors = [cm.colors[x] for x in range(4)]
