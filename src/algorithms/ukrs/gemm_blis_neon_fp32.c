@@ -527,7 +527,6 @@ void gemm_microkernel_Cresident_neon_4x4_prefetch_fp32(int mr, int nr, int kc, f
         }
         //printf("Cf(0,0) = %16.10g\n", Crow(0,0));
     } else if ((mr == MR) && (nr == NR)) {
-        printf("here 1\n");
         if (beta != zero) {
             A0 = vld1q_f32(&Crow(0, 0));
             A1 = vld1q_f32(&Crow(1, 0));
