@@ -168,12 +168,14 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                 for (k = 0; k < wo; k += WOB) {
                     kb = min(wo - k, WOB);
                     for (n = 0; n < Hf; n++) {
+                        int x = vstride * l + vdilation * n - vpadding;
+                        if (x < 0 || x > Ho) continue; // skip the whole thing
                         for (m = 0; m < Wf; m++) {
                             // packRB('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
                             // assert(i + ib <= Ci); assert(k + kb <= wo); // assert(k + kb + m <= Wo);
-                            packRB( 'R', 'N', kb, ib, D + h * ldD1, l, n, k, m, i, Ho, Wo,
-                                vpadding, hpadding, vstride, hstride, vdilation, hdilation,
-                                ldD2, ldD3, Ac, MR);
+                            packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2,
+                                    k, m, i, Wo, hpadding, hstride, hdilation,
+                                    ldD3, Ac, MR);
 			    //j2 = 0;
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {
                             //for (j = 0; j < Co; j += COB) {
