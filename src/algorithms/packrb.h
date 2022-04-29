@@ -25,7 +25,7 @@
 #define CONVDIRECT_PACKRB_H
 
 void packRB(char orderA, char transA, int mc, int nc, const DTYPE *A,
-        int start_y, int ky, int start_c, int dim_w,
+        int start_y, int ky, int dim_w,
         int hpadding, int hstride, int hdilation,
         int ld3, DTYPE *Ac, int RR);
 

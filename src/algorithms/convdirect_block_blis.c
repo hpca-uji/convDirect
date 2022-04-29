@@ -173,8 +173,8 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                         for (m = 0; m < Wf; m++) {
                             // packRB('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
                             // assert(i + ib <= Ci); assert(k + kb <= wo); // assert(k + kb + m <= Wo);
-                            packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2,
-                                    k, m, i, Wo, hpadding, hstride, hdilation,
+                            packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2 + i,
+                                    k, m, Wo, hpadding, hstride, hdilation,
                                     ldD3, Ac, MR);
 			    //j2 = 0;
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {

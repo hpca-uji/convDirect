@@ -23,34 +23,26 @@
  * BLIS pack for A-->Ac
 */
 void packRB(char orderA, char transA, int mc, int nc, const DTYPE *A,
-        int start_y, int ky, int start_c, int dim_w,
+        int start_y, int ky, int dim_w,
         int hpadding, int hstride, int hdilation,
         int ld3, DTYPE *Ac, int RR) {
-
-    int i, j, ii, k, rr;
 
     if (((transA == 'N') && (orderA == 'C')) ||
         ((transA == 'T') && (orderA == 'R'))) {
       printf("Packing not yet implemented\n");
       exit(-1);
     } else {
-        //#pragma omp parallel for private(j, ii, rr, k)
-        for (i = 0; i < mc; i += RR) {
-            k = i * nc;
-            rr = min(mc - i, RR);
-            for (j = 0; j < nc; j++) {
-                for (ii = 0; ii < rr; ii++) {
-                    // Ac[k] = Acol(j,i+ii);
-                    int y = hstride * (start_y + i + ii) + hdilation * ky - hpadding;
-                    // A = A + x*ld2 + y*ld3 + start_c;
-                    // Ac[k] = A[(i+ii)*ld3+j];
-                    if (0 <= y && y < dim_w) {
-                        // assert(start_c + j < ld3);
-                        // assert(y * ld3 + start_c + j < ld2);
-                        Ac[k] = A[y * ld3 + start_c + j];
-                    } else Ac[k] = 0.0;
-                    k++;
-                }
+        start_y = hstride * start_y + hdilation * ky - hpadding;
+        //#pragma omp parallel for
+        for (int i = 0; i < mc; i += RR) {
+            int k = i * nc;
+            int rr = min(mc - i, RR);
+            for (int j = 0; j < nc; j++) {
+                int ii = 0;
+                int y = start_y + hstride * i;
+                for (; ii < rr && y < 0    ; ii++, y += hstride, k++) Ac[k] = 0.0;
+                for (; ii < rr && y < dim_w; ii++, y += hstride, k++) Ac[k] = A[y * ld3 + j];
+                for (; ii < rr             ; ii++,               k++) Ac[k] = 0.0;
                 k += (RR - rr);
             }
         }
