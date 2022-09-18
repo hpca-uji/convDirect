@@ -171,11 +171,11 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                         int x = vstride * l + vdilation * n - vpadding;
                         if (x < 0 || x > Ho) continue; // skip the whole thing
                         for (m = 0; m < Wf; m++) {
-                            // packRB('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
+                            packRB_neon('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
                             // assert(i + ib <= Ci); assert(k + kb <= wo); // assert(k + kb + m <= Wo);
-                            packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2 + i,
-                                    k, m, Wo, hpadding, hstride, hdilation,
-                                    ldD3, Ac, MR);
+			    //packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2 + i,
+                            //k, m, Wo, hpadding, hstride, hdilation,
+                            //ldD3, Ac, MR);
 			    //j2 = 0;
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {
                             //for (j = 0; j < Co; j += COB) {
@@ -287,7 +287,9 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                     ib,
                                                     &Ac[ir * ib],
                                                     &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
-                                                    &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
+                                                    &Yrow_NHWC(h, j + jr, l, k + ir), ldY3, 
+						    &Ac[(ir + MR) * ib],
+						    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0));
                                         else
                                             gemm_microkernel_Cresident_neon_8x12_fp32(
                                                     mr, nr, ib,
@@ -295,7 +297,9 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                                                     &Ac[ir * ib],
                                                     &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0),
                                                     beta,
-                                                    &Yrow_NHWC(h, j + jr, l, k + ir), ldY3);
+                                                    &Yrow_NHWC(h, j + jr, l, k + ir), ldY3,
+						    &Ac[(ir + MR) * ib],
+						    &FBrow_NHWC(j2 * Cob_Nr + jr2, i, n, m, 0));
 #elif defined(MK_4x12)
                                         gemm_microkernel_Cresident_neon_4x12_fp32(
                                                 mr, nr, ib,

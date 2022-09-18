@@ -28,6 +28,12 @@
 
 
 // Micro-kernels for BLIS
+
+void gemm_microkernel_Cresident_assembly_8x12_fixed_fp32(int kc, 
+                                                         const float *Ar, const float *Br,
+                                                         float *C, int ldC, 
+							 void *next_Ar, void *next_Br);
+
 void gemm_microkernel_Cresident_neon_4x4_prefetch_fp32(int, int, int, float, const float *, const float *, float,
                                                        float *, int);
 
@@ -41,7 +47,7 @@ void gemm_microkernel_Cresident_neon_4x20_fixed_fp32(int, int, int, float, const
 
 void gemm_microkernel_Cresident_neon_4x20_fixed_unroll_2_fp32(int, int, int, float, const float *, const float *, float, float *, int);
 
-void gemm_microkernel_Cresident_neon_8x12_fp32(int, int, int, float, const float *, const float *, float, float *, int);
+void gemm_microkernel_Cresident_neon_8x12_fp32(int, int, int, float, const float *, const float *, float, float *, int, void *, void *);
 
 void gemm_microkernel_Cresident_neon_8x12_fixed_fp32(int, int, int, float, const float *, const float *, float,
                                                      float *, int);
