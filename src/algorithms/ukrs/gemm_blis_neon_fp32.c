@@ -2638,7 +2638,7 @@ void gemm_microkernel_Cresident_assembly_8x12_fixed_fp32(int kc,
     __asm__ volatile
   (
     // input operands
-  " ldr x29, %[ukc]                  \n\t" // Load kc in x29
+  " ldr x28, %[ukc]                  \n\t" // Load kc in x28
   " ldr x24, %[Aaddr]                \n\t" // Load A address in x24
   " ldr x26, %[Baddr]                \n\t" // Load B address in x26
   "                                  \n\t"
@@ -2722,8 +2722,8 @@ void gemm_microkernel_Cresident_assembly_8x12_fixed_fp32(int kc,
   "                                  \n\t"
   " add x24, x24, #32                \n\t"  // Update address of A for next iteration
   " add x26, x26, #48                \n\t"  // Update address of B for next iteration
-  " sub x29, x29, 1                  \n\t"  // Decrease iteration count by 1
-  " cmp x29, 0                       \n\t"  // Check end of iteration count
+  " sub x28, x28, 1                  \n\t"  // Decrease iteration count by 1
+  " cmp x28, 0                       \n\t"  // Check end of iteration count
   "                                  \n\t"
   BNE(LOOP_ITER_8x12)
   "                                  \n\t"
@@ -2770,7 +2770,7 @@ void gemm_microkernel_Cresident_assembly_8x12_fixed_fp32(int kc,
     "x7",
     "x24", // Address of A
     "x26", // Address of B
-    "x29", // Value of kc
+    "x28", // Value of kc
     "x12", // Value of ldC
     "v0",  "v1",  "v2",   // Registers for C00,..., C73
     "v3",  "v4",  "v5",
@@ -2811,7 +2811,7 @@ void gemm_microkernel_Cresident_assembly_4x20_fixed_fp32(int kc,
     __asm__ volatile
   (
     // input operands
-  " ldr x29, %[ukc]                  \n\t" // Load kc in x29
+  " ldr x28, %[ukc]                  \n\t" // Load kc in x28
   " ldr x24, %[Aaddr]                \n\t" // Load A address in x24
   " ldr x26, %[Baddr]                \n\t" // Load B address in x26
   "                                  \n\t"
@@ -2880,8 +2880,8 @@ void gemm_microkernel_Cresident_assembly_4x20_fixed_fp32(int kc,
   "                                  \n\t"
   " add x24, x24, #16                \n\t"  // Update address of A for next iteration
   " add x26, x26, #80                \n\t"  // Update address of B for next iteration
-  " sub x29, x29, 1                  \n\t"  // Decrease iteration count by 1
-  " cmp x29, 0                       \n\t"  // Check end of iteration count
+  " sub x28, x28, 1                  \n\t"  // Decrease iteration count by 1
+  " cmp x28, 0                       \n\t"  // Check end of iteration count
   "                                  \n\t"
   BNE(LOOP_ITER_4x20)
   "                                  \n\t"
@@ -2920,7 +2920,7 @@ void gemm_microkernel_Cresident_assembly_4x20_fixed_fp32(int kc,
     "x3",
     "x24", // Address of A
     "x26", // Address of B
-    "x29", // Value of kc
+    "x28", // Value of kc
     "x12", // Value of ldC
     "v0",  "v1",  "v2",  "v3",  "v4",  // Registers for C
     "v5",  "v6",  "v7",  "v8",  "v9",  
