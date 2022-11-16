@@ -33,7 +33,7 @@ void packRB(char orderA, char transA, int mc, int nc, const DTYPE *A,
       exit(-1);
     } else {
         start_y = hstride * start_y + hdilation * ky - hpadding;
-        //#pragma omp parallel for
+        #pragma omp parallel for
         for (int i = 0; i < mc; i += RR) {
             int k = i * nc;
             int rr = min(mc - i, RR);
