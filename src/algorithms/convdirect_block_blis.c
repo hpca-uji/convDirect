@@ -182,7 +182,7 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {
                             //for (j = 0; j < Co; j += COB) {
                                 jb = min(Co - j, COB);
-                         	#pragma omp parallel for private(nr, ir, mr, jr2) 
+                         	//#pragma omp parallel for private(nr, ir, mr, jr2) 
                                 for (jr = 0; jr < jb; jr += NR) {
                                 //for (jr = 0, jr2 = 0; jr < jb; jr += NR, jr2++) {
                                     nr = min(jb - jr, NR);
