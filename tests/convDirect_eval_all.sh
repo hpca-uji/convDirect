@@ -23,7 +23,7 @@ for NET in "${SCRIPT_PATH}"/cnn/*; do
   for ALGORITHM in "${ALGORITHMS[@]}"; do
       # convdirect_eval.sh writes its outputs to ${OUTPUT_PATH}/CNN-Dataset_-_algorithm.csv
       # TMIN=0 TEST=T \
-      TMIN=240 \
+      TMIN=240 TEST=F \
       "${SCRIPT_PATH}"/convDirect_eval.sh "${ALGORITHM}" "${NET}"
   done
 done
