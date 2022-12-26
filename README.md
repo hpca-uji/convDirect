@@ -19,7 +19,7 @@ should be initialized with:
 git submodule update --init
 ```
 
-In case you want to update the convGemm submodule to the most recent version, the next commando should be executed: 
+In case you want to update the convGemm submodule to the most recent version, the next command should be executed: 
 
 ```shell
 git submodule update --remote --merge
