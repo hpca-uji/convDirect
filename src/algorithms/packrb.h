@@ -20,13 +20,17 @@
 #include "../dtypes.h"
 #include "../arrays.h"
 #include "../macros.h"
+#ifdef ARCH__aarch64__
 #include <arm_neon.h>
+#endif
 
 #ifndef CONVDIRECT_PACKRB_H
 #define CONVDIRECT_PACKRB_H
 
 
+#ifdef ARCH__aarch64__
 void packRB_neon( char orderA, char transA, int mc, int nc, DTYPE *A, int ldA, DTYPE *Ac, int RR );
+#endif
 
 void packRB(char orderA, char transA, int mc, int nc, const DTYPE *A,
         int start_y, int ky, int dim_w,

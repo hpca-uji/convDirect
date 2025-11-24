@@ -173,11 +173,12 @@ void CONVDIRECT_KERNEL_WITH_PARAMS {
                         int x = vstride * l + vdilation * n - vpadding;
                         if (x < 0 || x > Ho) continue; // skip the whole thing
                         for (m = 0; m < Wf; m++) {
+#ifdef ARCH__aarch64__
                             packRB_neon('R', 'N', kb, ib, &Drow_NHWC(h, i, l + n, k + m), ldD3, Ac, MR);
+#else
                             // assert(i + ib <= Ci); assert(k + kb <= wo); // assert(k + kb + m <= Wo);
-                //packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2 + i,
-                            //k, m, Wo, hpadding, hstride, hdilation,
-                            //ldD3, Ac, MR);
+                            packRB('R', 'N', kb, ib, D + h * ldD1 + x * ldD2 + i, k, m, Wo, hpadding, hstride, hdilation, ldD3, Ac, MR);
+#endif
                 //j2 = 0;
                             for (j = 0, j2 = 0; j < Co; j += COB, j2++) {
                             //for (j = 0; j < Co; j += COB) {

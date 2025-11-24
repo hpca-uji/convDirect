@@ -25,6 +25,7 @@
 
 #define Acol(a1,a2)  A[ (a2)*(ldA)+(a1) ]
 
+#ifdef ARCH__aarch64__
 void packRB_neon( char orderA, char transA, int mc, int nc, DTYPE *A, int ldA, DTYPE *Ac, int RR ) {
   
     int    i, j, ii, ii_tmp, k, rr, iters, iters_left;
@@ -188,6 +189,7 @@ void packRB_neon( char orderA, char transA, int mc, int nc, DTYPE *A, int ldA, D
     }
 
 }
+#endif
 
 void packRB(char orderA, char transA, int mc, int nc, const DTYPE *A,
         int start_y, int ky, int dim_w,
